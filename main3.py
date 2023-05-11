@@ -56,11 +56,12 @@ async def root():
 async def start_chat(user_input):
 
     redis_data = get_redis_data()
-    if redis_data:
+    if redis_data and "docs" in redis_data:
         hex_data = redis_data["docs"]
     else:
         hex_data = load_hex()
-        set_redis_data({"historical_data": hex_data})
+        set_redis_data({"docs": hex_data})
+
 
     docs=chatbot.faiss_index.similarity_search(user_input, k=2)
 
