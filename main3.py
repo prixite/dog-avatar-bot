@@ -81,6 +81,7 @@ async def start_chat(user_input):
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
         messages=messages,
+        temperature=0
     )
 
     message_content = response['choices'][0]['message']['content']
