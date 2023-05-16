@@ -1,15 +1,24 @@
 import json
 import redis
-from datetime import timedelta
 from fastapi import FastAPI
 import os
+from datetime import datetime, timedelta
+from dateutil.relativedelta import relativedelta
+import json
+from requests import Request, Session
+from requests.exceptions import ConnectionError, Timeout, TooManyRedirects
 import openai
+from dotenv import dotenv_values
 from langchain.document_loaders import PDFMinerLoader
 from langchain.vectorstores import FAISS
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
-os.environ["OPENAI_API_KEY"] = "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"
+config = dotenv_values(".env")
+
+api_key = config["key"]
+
+os.environ["OPENAI_API_KEY"] = api_key
 
 app = FastAPI()
 # redis_client = redis.Redis(host="localhost", port=6379, db=0)
@@ -29,8 +38,39 @@ class Chatbot:
         self.faiss_index = load_docs()
 
 def load_hex():
-    with open("hexcoin.txt", "r") as file:
-        data = file.read()
+
+    url = "https://pro-api.coinmarketcap.com/v3/cryptocurrency/quotes/historical"
+
+    # Get the current date and time
+    time_end = datetime.now()
+
+    # Get the date and time one month ago
+    time_start = time_end - relativedelta(months=1)
+
+
+    parameters = {
+        "symbol":"hex",
+        "time_start":time_start.strftime("%Y-%m-%dT%H:%M:%SZ"),  # Format the as a string
+        "time_end":time_end.strftime("%Y-%m-%dT%H:%M:%SZ"),  
+        "aux":"price,volume,market_cap,quote_timestamp",
+        "interval":"24h",
+        "convert":"USD"
+    }
+
+    headers = {
+    'Accepts': 'application/json',
+    'X-CMC_PRO_API_KEY': "94440b6c-efe2-410f-8c5e-494392d3605b",
+    }
+
+    session = Session()
+    session.headers.update(headers)
+
+    try:
+        response = session.get(url, params=parameters)
+        data = json.loads(response.text)
+    except (ConnectionError, Timeout, TooManyRedirects) as e:
+        print(e)
+
     return data
 
 chatbot = Chatbot()
@@ -58,18 +98,21 @@ async def root():
 async def start_chat(user_input):
 
     redis_data = get_redis_data()
-    if redis_data and "docs" in redis_data:
-        hex_data = redis_data["docs"]
+    if redis_data and "hex_data" in redis_data:
+        hex_data = redis_data["hex_data"]
+        print("got redis")
     else:
         hex_data = load_hex()
-        set_redis_data({"docs": hex_data})
-
+        set_redis_data({"hex_data": hex_data})
+        print("set redis")
 
     docs=chatbot.faiss_index.similarity_search(user_input, k=2)
 
     messages =[
-            {"role": "system", "content":f"""You are a chatbot that is restricted to hex currency and can answer questions only related to Hex Crypto currency. I am going to provide you a few documents and historical hex coin data that contains information about hex, some FAQ and the historical hex data. If the user asks any question or information that is present or 
-            related to the information in the provided documents then answer to that question, provide information or generate an answer to user using only these documents, don't answer from your own. 
+            {"role": "system", "content":f"""You are a chatbot that is restricted to hex currency and can answer questions only related to Hex Crypto currency. 
+            I am going to provide you a few documents and historical hex coin data in json format that contains information about hex, some FAQ and the historical hex currency data. 
+            If the user asks any question or information that is present or 
+            related to the information in the provided documents then answer to that question using only these provided documents, don't answer from your own. 
             Provided Documents Start: {docs}.\n Provided Documents End.
             Historical Data for HEX Start: {hex_data}. \nHistorical Data for HEX End
 
