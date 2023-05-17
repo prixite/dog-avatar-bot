@@ -100,19 +100,19 @@ async def start_chat(user_input):
     redis_data = get_redis_data()
     if redis_data and "hex_data" in redis_data:
         hex_data = redis_data["hex_data"]
-        print("got redis")
+        # print("got redis")
     else:
         hex_data = load_hex()
         set_redis_data({"hex_data": hex_data})
-        print("set redis")
+        # print("set redis")
 
     docs=chatbot.faiss_index.similarity_search(user_input, k=2)
 
     messages =[
-            {"role": "system", "content":f"""You are a chatbot that is restricted to hex currency and can answer questions only related to Hex Crypto currency. 
-            I am going to provide you a few documents and historical hex coin data in json format that contains information about hex, some FAQ and the historical hex currency data. Respond with no salutations.
+            {"role": "system", "content":f"""You are a chatbot that is restricted to hex currency and can answer questions only related to Hex Crypto currency. Always respond with no salutations.
+            I am going to provide you a few documents and historical hex coin data in json format that contains information about hex, some FAQ and the historical hex currency data. 
             If the user asks any question or information that is present or 
-            related to the information in the provided documents then answer to that question using only these provided documents, don't answer from your own.
+            related to the information in the provided documents then answer to that question using only these provided documents, don't answer from your own. 
             Provided Documents Start: {docs}.\n Provided Documents End.
             Historical Data for HEX Start: {hex_data}. \nHistorical Data for HEX End
 
