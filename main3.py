@@ -8,6 +8,7 @@ import json
 from requests import Request, Session
 from requests.exceptions import ConnectionError, Timeout, TooManyRedirects
 import openai
+import pickle
 from dotenv import dotenv_values
 from langchain.document_loaders import PDFMinerLoader
 from langchain.vectorstores import FAISS
@@ -16,9 +17,9 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 
 config = dotenv_values(".env")
 
-api_key = config["key"]
-
-os.environ["OPENAI_API_KEY"] = api_key
+api_keyy = config["key"]
+openai.api_key=api_keyy
+os.environ["OPENAI_API_KEY"] = api_keyy
 
 app = FastAPI()
 # redis_client = redis.Redis(host="localhost", port=6379, db=0)
@@ -26,12 +27,27 @@ redis_client = redis.Redis(host="redis", port=6379, db=0)
 
 
 def load_docs():
-    loader = PDFMinerLoader("hexpulsedata.pdf")
-    data = loader.load()
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1400, chunk_overlap=400)
-    texts = text_splitter.split_documents(data)
-    faiss_index = FAISS.from_documents(texts, OpenAIEmbeddings())
+    # Define the pickle file path
+    pickle_file = "hexpulsedata_pickle.pkl"
+
+    # Check if the pickle file exists
+    if os.path.isfile(pickle_file):
+        # Load data from the pickle file
+        with open(pickle_file, 'rb') as f:
+            faiss_index = pickle.load(f)
+    else:
+        # If pickle file doesn't exist, process the documents and save to a new pickle file
+        loader = PDFMinerLoader("hexpulsedata.pdf")
+        data = loader.load()
+        text_splitter = RecursiveCharacterTextSplitter(chunk_size=1400, chunk_overlap=400)
+        texts = text_splitter.split_documents(data)
+        faiss_index = FAISS.from_documents(texts, OpenAIEmbeddings())
+        # Save the faiss index to a pickle file
+        with open(pickle_file, 'wb') as f:
+            pickle.dump(faiss_index, f)
+
     return faiss_index
+
 
 class Chatbot:
     def __init__(self):
