@@ -3,3 +3,5 @@ venv
 main.py
 main2.py
 utils.py
+detectdate.py
+testcoinapi.py
