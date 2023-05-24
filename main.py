@@ -156,8 +156,23 @@ def train_lstm():
     df = pd.DataFrame(data_list, columns=['price', 'volume_24h', 'market_cap', 'date'])
 
 
+    df['date'] = pd.to_datetime(df['date'])
+
+    df['date'] = df['date'].dt.tz_localize(None) 
+
+    df = df.sort_values('date')
+
+    df = df.set_index('date').resample('D').asfreq()
+
+    df = df.fillna(method='ffill')
+
+    df = df.reset_index()
+
+
     # Prepare your data
-    series = TimeSeries.from_dataframe(df, 'date', ['price', 'volume_24h', 'market_cap'])
+    # series = TimeSeries.from_dataframe(df, 'date', ['price', 'volume_24h', 'market_cap'])
+    series = TimeSeries.from_dataframe(df, 'date', ['price', 'volume_24h', 'market_cap'], freq='D')
+
 
     # Scale the time series for better performance
     transformer = Scaler()
@@ -231,7 +246,7 @@ async def start_chat(user_input):
 
     future_data=load_df_from_redis()
 
-    # print(future_data)
+    print(future_data)
 
     docs=chatbot.faiss_index.similarity_search(user_input, k=2)
 
