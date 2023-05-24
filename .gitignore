@@ -1,6 +1,5 @@
 __pycache__
 venv
-main.py
 main2.py
 utils.py
 detectdate.py
@@ -9,3 +8,4 @@ main2.py
 rnn.py
 linreg.py
 output.txt
+test.mp3
