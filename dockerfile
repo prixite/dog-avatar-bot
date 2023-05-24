@@ -1,5 +1,5 @@
 # Use an official Python runtime as a parent image
-FROM python:3.10.11-slim-buster
+FROM python:3.10.11-alpine
 
 # Set the working directory in the container to /app
 WORKDIR /app
@@ -11,4 +11,4 @@ ADD . /app
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Run the application:
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

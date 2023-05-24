@@ -8,5 +8,8 @@ services:
       - .:/app
     depends_on:
       - redis
+
   redis:
     image: "redis:alpine"
+    ports:
+      - "0.0.0.0:6379:6379"

@@ -1,11 +1,4 @@
 __pycache__
 venv
-main2.py
-utils.py
-detectdate.py
-testcoinapi.py
-main2.py
-rnn.py
-linreg.py
-output.txt
-test.mp3
+.env
+demo
