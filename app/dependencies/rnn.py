@@ -44,7 +44,9 @@ def train_lstm():
     # df = df.reset_index()
 
     # Prepare your data
-    series = TimeSeries.from_dataframe(df, 'date', ['price', 'volume_24h', 'market_cap'])
+    series = TimeSeries.from_dataframe(
+        df, "date", ["price", "volume_24h", "market_cap"]
+    )
     # series = TimeSeries.from_dataframe(
     #     df, "date", ["price", "volume_24h", "market_cap"], freq="D"
     # )
