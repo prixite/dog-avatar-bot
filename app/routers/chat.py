@@ -23,11 +23,11 @@ async def start_chat(user_input):
     redis_data = get_redis_data()
     if redis_data and "hex_data" in redis_data:
         hex_data = redis_data["hex_data"]
-#         print("got redis")
+    #         print("got redis")
     else:
         hex_data = load_hex()
         set_redis_data({"hex_data": hex_data})
-#         print("set redis")
+    #         print("set redis")
 
     df_bytes = get_future_data()
     if df_bytes is not None:
@@ -37,7 +37,7 @@ async def start_chat(user_input):
         df_bytes = pickle.dumps(future_data)
         set_future_data(df_bytes)
 
-#     print(future_data)
+    # print(future_data)
 
     docs = chatbot.faiss_index.similarity_search(user_input, k=2)
     # flake8: noqa

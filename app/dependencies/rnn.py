@@ -31,25 +31,20 @@ def train_lstm():
     # convert list to pandas DataFrame
     df = pd.DataFrame(data_list, columns=["price", "volume_24h", "market_cap", "date"])
 
-    # df["date"] = pd.to_datetime(df["date"])
+    df["date"] = pd.to_datetime(df["date"])
 
-    # df["date"] = df["date"].dt.tz_localize(None)
+    df["date"] = df["date"].dt.tz_convert(None)
 
-    # df = df.sort_values("date")
+    df.set_index("date", inplace=True)
 
-    # df = df.set_index("date").resample("D").asfreq()
+    df = df.resample("D").mean().reset_index()
 
-    # df = df.fillna(method="ffill")
-
-    # df = df.reset_index()
+    df.fillna(method="ffill", inplace=True)
 
     # Prepare your data
     series = TimeSeries.from_dataframe(
         df, "date", ["price", "volume_24h", "market_cap"]
     )
-    # series = TimeSeries.from_dataframe(
-    #     df, "date", ["price", "volume_24h", "market_cap"], freq="D"
-    # )
 
     # Scale the time series for better performance
     transformer = Scaler()
