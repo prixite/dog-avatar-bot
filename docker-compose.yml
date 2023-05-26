@@ -6,6 +6,8 @@ services:
       - "8000:8000"
     volumes:
       - .:/app
+      - "/etc/timezone:/etc/timezone:ro"
+      - "/etc/localtime:/etc/localtime:ro"
     depends_on:
       - redis
     env_file:
