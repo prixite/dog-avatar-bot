@@ -2,14 +2,9 @@ import json
 import os
 from datetime import datetime
 
-import openai
 from dateutil.relativedelta import relativedelta
 from requests import Session
 from requests.exceptions import ConnectionError, Timeout, TooManyRedirects
-
-openai.api_key = "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"
-
-os.environ["OPENAI_API_KEY"] = "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"
 
 
 def load_hex():
