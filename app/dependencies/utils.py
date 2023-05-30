@@ -4,7 +4,6 @@ from datetime import datetime
 
 import openai
 from dateutil.relativedelta import relativedelta
-
 from requests import Session
 from requests.exceptions import ConnectionError, Timeout, TooManyRedirects
 
