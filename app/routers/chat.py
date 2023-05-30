@@ -10,7 +10,7 @@ from app.dependencies.redis_client import (
     set_redis_data,
 )
 from app.dependencies.rnn import train_lstm
-from app.dependencies.utils import load_hex,extract_coin_key
+from app.dependencies.utils import extract_coin_key, load_hex
 from app.internal.chatbot import Chatbot
 
 chatbot = Chatbot()
@@ -29,7 +29,7 @@ async def start_chat(user_input):
         set_redis_data({"hex_data": hex_data})
         print("set redis")
 
-    new_hex_data=extract_coin_key(user_input,hex_data)
+    new_hex_data = extract_coin_key(user_input, hex_data)
 
     # print(hex_data)
 
@@ -44,7 +44,6 @@ async def start_chat(user_input):
     # print(future_data)
 
     docs = chatbot.faiss_index.similarity_search(user_input, k=2)
-
 
     # flake8: noqa
     messages = [
