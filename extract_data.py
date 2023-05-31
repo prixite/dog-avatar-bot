@@ -1,57 +1,31 @@
-import json
+import openai
+import os
+openai.api_key 
+os.environ["OPENAI_API_KEY"]
 
-with open("output.txt", "r") as file:
-    data_string = file.read()
+def check_spell(user_input):
 
-# Define your lists
-first_list = [
-    "hex",
-    "bitcoin",
-    "ethereum",
-    "tether",
-    "bnb",
-    "usdcoin",
-    "xrp",
-    "cardano",
-    "dogecoin",
-    "solana",
-    "polygon",
-]
-second_list = [
-    "HEX",
-    "BTC",
-    "ETH",
-    "USDT",
-    "BNB",
-    "USDC",
-    "XRP",
-    "ADA",
-    "DOGE",
-    "SOL",
-    "MATIC",
-]
+    messages = [
+        {
+        "role": "system",
+        "content": """You are a chatbot that is restricted to only correcting the spellings of words in a sentence. If the sentence has any crypto currency name or token name spelled incorrectly 
+        then please correct that too. Please return the same user message to the user after correcting the spellings in it. Don't reply with anything else just return the same whole message to user with correctly spelled words. 
+        Don't provide any explanations or answer any query. Here is a list of some correctly spelled crypto currencies names: ["hex","pulsex","pulsechain","bitcoin","ethereum","tether","bnb","usdcoin","xrp",
+        "cardano","dogecoin","solana","polygon","tron","litecoin","polkadot","binanceusd","shibainu","avalanche","dai","wrappedbitcoin","chainlink","unussedleo"]. Dont add ['s] at the end of any corrected currency name.""",
+        },
+    ]
+    messages.append({"role": "user", "content": user_input})
 
-# Get user input
-user_string = input("Enter your string: ").lower()
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo", messages=messages, temperature=0
+    )
+
+    message_content = response["choices"][0]["message"]["content"]
 
 
-index = 99
-# Check each word in the user string
-for word in user_string.split():
-    if word in first_list:
-        # If the word is in the first list, add its index to the new list
+    return message_content
 
-        index = first_list.index(word)
 
-if index != 99:
-    # Print the indices
-    curreny_symbol = second_list[index]
-    # Parse the JSON string into a Python dictionary
-    data = json.loads(data_string)
-
-    # Extract the Bitcoin data
-    bitcoin_data = data["data"][curreny_symbol]
-
-    print(bitcoin_data)
-else:
-    print("I don't Know please enter currency name correctly")
+while True:
+    inp=input("User: ")
+    print(check_spell(inp))

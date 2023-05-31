@@ -1,4 +1,4 @@
-import pickle
+import tiktoken
 
 import openai
 from fastapi import APIRouter
@@ -9,13 +9,25 @@ from app.dependencies.redis_client import (
     set_future_data,
     set_redis_data,
 )
-from app.dependencies.rnn import train_lstm
-from app.dependencies.utils import extract_coin_key, load_hex
+from langchain.text_splitter import TokenTextSplitter
+# from app.dependencies.rnn import train_lstm
+from app.dependencies.utils import extract_coin_key, load_hex, num_tokens_from_string,remove_brackets
 from app.internal.chatbot import Chatbot
 
 chatbot = Chatbot()
 
 router = APIRouter()
+
+
+# def load_dataframe():
+#     with open('df_reset.pkl', 'rb') as f:
+#         df = pickle.load(f)
+#     return df
+
+
+
+
+
 
 
 @router.post("/start_chat")
@@ -31,6 +43,18 @@ async def start_chat(user_input):
 
     new_hex_data = extract_coin_key(user_input, hex_data)
 
+
+    num_tokens=num_tokens_from_string(str(new_hex_data),"cl100k_base")
+
+    if num_tokens>3000:
+        text_splitter = TokenTextSplitter(chunk_size=3000, chunk_overlap=0)
+        texts = text_splitter.split_text(str(new_hex_data))
+        new_hex_data=texts[0]
+
+
+    new_hex_data=remove_brackets(str(new_hex_data))
+    # print("new_hex_data = ",new_hex_data)
+
     # print(hex_data)
 
     # df_bytes = get_future_data()
@@ -43,7 +67,13 @@ async def start_chat(user_input):
 
     # print(future_data)
 
+    # currencies=["HEX","PLS","PLSX","BTC"]
+
+    # for c in currencies:
+    #     train_lstm(c)
+
     docs = chatbot.faiss_index.similarity_search(user_input, k=2)
+
 
     # flake8: noqa
     messages = [
@@ -57,9 +87,22 @@ async def start_chat(user_input):
             4) If the user asks some questions that are not related to these three then response to those question by using your knowledge.\n
             5) Please respond with no salutations and don't refer to the provided documents while answering to user. Never answer like according to the provided documents etc.
             Information_hex documents Start:\n {docs}.\n Information_hex documents End\n
-            Historical_currency_data Start:\n {new_hex_data}. \n Historical_currency_data End\n""",
+            Historical_currency_data Start:\n {new_hex_data}. \n Historical_currency_data End\n
+            """,
         },
     ]
+
+
+    num_tokens_message=num_tokens_from_string(messages[0]["content"],"cl100k_base")
+
+    if num_tokens_message>4400:
+        text_splitter = TokenTextSplitter(chunk_size=4400, chunk_overlap=0)
+        texts = text_splitter.split_text(str(messages[0]["content"]))
+        messages[0]["content"]=texts[0]
+
+    # print("num_tokens_message = ",num_tokens_message)
+
+
     messages.append({"role": "user", "content": user_input})
 
     response = openai.ChatCompletion.create(

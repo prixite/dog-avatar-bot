@@ -2,18 +2,18 @@ import pandas as pd
 from darts import TimeSeries
 from darts.dataprocessing.transformers import Scaler
 from darts.models import RNNModel
-
+import pickle
 from app.dependencies.redis_client import get_redis_data
 
 
-def train_lstm():
+def train_lstm(currency_name):
     redis_data = get_redis_data()
     if redis_data and "hex_data" in redis_data:
         hex_data = redis_data["hex_data"]
     else:
         return
 
-    dataa = hex_data["data"]["HEX"][0]["quotes"]
+    dataa = hex_data["data"][currency_name][0]["quotes"]
 
     # create a list to hold our data
     data_list = []
@@ -80,4 +80,7 @@ def train_lstm():
     df_reset.columns.name = None
     df_reset = df_reset.reset_index(drop=True)
 
-    return df_reset
+    # Save the DataFrame to a pickle file
+    with open(f'app/dependencies/{currency_name}.pkl', 'wb') as f:
+        pickle.dump(df_reset, f)
+
