@@ -3,7 +3,7 @@
 exclude =
     venv,
 
-max-line-length = 100
+max-line-length = 300
 extend-ignore =
     # See https://github.com/PyCQA/pycodestyle/issues/373
     E203
