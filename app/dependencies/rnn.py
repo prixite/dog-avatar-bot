@@ -81,6 +81,5 @@ def train_lstm(currency_name):
     df_reset = df_reset.reset_index(drop=True)
 
     # Save the DataFrame to a pickle file
-    with open(f'app/dependencies/{currency_name}.pkl', 'wb') as f:
+    with open(f"app/dependencies/{currency_name}.pkl", "wb") as f:
         pickle.dump(df_reset, f)
-

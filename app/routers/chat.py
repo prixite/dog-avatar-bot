@@ -10,8 +10,14 @@ from app.dependencies.redis_client import (
     set_redis_data,
 )
 from langchain.text_splitter import TokenTextSplitter
+
 # from app.dependencies.rnn import train_lstm
-from app.dependencies.utils import extract_coin_key, load_hex, num_tokens_from_string,remove_brackets
+from app.dependencies.utils import (
+    extract_coin_key,
+    load_hex,
+    num_tokens_from_string,
+    remove_brackets,
+)
 from app.internal.chatbot import Chatbot
 
 chatbot = Chatbot()
@@ -23,11 +29,6 @@ router = APIRouter()
 #     with open('df_reset.pkl', 'rb') as f:
 #         df = pickle.load(f)
 #     return df
-
-
-
-
-
 
 
 @router.post("/start_chat")
@@ -43,16 +44,14 @@ async def start_chat(user_input):
 
     new_hex_data = extract_coin_key(user_input, hex_data)
 
+    num_tokens = num_tokens_from_string(str(new_hex_data), "cl100k_base")
 
-    num_tokens=num_tokens_from_string(str(new_hex_data),"cl100k_base")
-
-    if num_tokens>3000:
+    if num_tokens > 3000:
         text_splitter = TokenTextSplitter(chunk_size=3000, chunk_overlap=0)
         texts = text_splitter.split_text(str(new_hex_data))
-        new_hex_data=texts[0]
+        new_hex_data = texts[0]
 
-
-    new_hex_data=remove_brackets(str(new_hex_data))
+    new_hex_data = remove_brackets(str(new_hex_data))
     # print("new_hex_data = ",new_hex_data)
 
     # print(hex_data)
@@ -74,7 +73,6 @@ async def start_chat(user_input):
 
     docs = chatbot.faiss_index.similarity_search(user_input, k=2)
 
-
     # flake8: noqa
     messages = [
         {
@@ -92,16 +90,14 @@ async def start_chat(user_input):
         },
     ]
 
+    num_tokens_message = num_tokens_from_string(messages[0]["content"], "cl100k_base")
 
-    num_tokens_message=num_tokens_from_string(messages[0]["content"],"cl100k_base")
-
-    if num_tokens_message>4400:
+    if num_tokens_message > 4400:
         text_splitter = TokenTextSplitter(chunk_size=4400, chunk_overlap=0)
         texts = text_splitter.split_text(str(messages[0]["content"]))
-        messages[0]["content"]=texts[0]
+        messages[0]["content"] = texts[0]
 
     # print("num_tokens_message = ",num_tokens_message)
-
 
     messages.append({"role": "user", "content": user_input})
 

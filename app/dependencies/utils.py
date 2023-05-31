@@ -17,10 +17,7 @@ def load_hex():
     # Get the date and time one month ago
     time_start = time_end - relativedelta(months=1)
 
-
-    symbols="""HEX,PLSX,PLS,BTC,ETH,USDT,BNB,USDC,XRP,ADA,DOGE,SOL,MATIC,TRX,LTC,DOT,BUSD,SHIB,AVAX,DAI,WBTC,LINK,LEO,ATOM,UNI,XMR,OKB,ETC,XLM,TON,BCH,ICP,TUSD,FIL,LDO,APT,HBAR,CRO,ARB,VET,NEAR,QNT,GRT,APE,ALGO,USDP,SAND,EOS,RPL,BIT,RNDR,AAVE,EGLD"""
-
-
+    symbols = """HEX,PLSX,PLS,BTC,ETH,USDT,BNB,USDC,XRP,ADA,DOGE,SOL,MATIC,TRX,LTC,DOT,BUSD,SHIB,AVAX,DAI,WBTC,LINK,LEO,ATOM,UNI,XMR,OKB,ETC,XLM,TON,BCH,ICP,TUSD,FIL,LDO,APT,HBAR,CRO,ARB,VET,NEAR,QNT,GRT,APE,ALGO,USDP,SAND,EOS,RPL,BIT,RNDR,AAVE,EGLD"""
 
     parameters = {
         "symbol": symbols,
@@ -53,12 +50,11 @@ def load_hex():
 
 
 def check_spell(user_input):
-
     messages = [
         {
-        "role": "system",
-        "content": """You are a chatbot that is restricted to only correcting the spellings of words in a sentence. Don't reply to any user query just correct the spellings of user message. If the sentence has any crypto currency name or token name spelled incorrectly 
-        then please correct that too. Please return the same user message to the user after correcting the spellings in it. Don't reply with anything else just return the same whole message to user with correctly spelled words. 
+            "role": "system",
+            "content": """You are a chatbot that is restricted to only correcting the spellings of words in a sentence. Don't reply to any user query just correct the spellings of user message. If the sentence has any crypto currency name or token name spelled incorrectly
+        then please correct that too. Please return the same user message to the user after correcting the spellings in it. Don't reply with anything else just return the same whole message to user with correctly spelled words.
         Don't provide any explanations or answer any query. Here is a list of some correctly spelled crypto currencies names: ["hex","pulsex","pulsechain","bitcoin","ethereum","tether","bnb","usdcoin","xrp",
         "cardano","dogecoin","solana","polygon","tron","litecoin","polkadot","binanceusd","shibainu","avalanche","dai","wrappedbitcoin","chainlink","unussedleo","cosmos","uniswap",
         "monero","okb","ethereumclassic","stellar","toncoin","bitcoincash","internetcomputer","trueusd","filecoin","lidodao","aptos","hedera","cronos","arbitrum","vechain","nearprotocol",
@@ -73,8 +69,8 @@ def check_spell(user_input):
 
     message_content = response["choices"][0]["message"]["content"]
 
-
     return message_content
+
 
 def extract_coin_key(user_input, data):
     json_data = json.dumps(data)
@@ -134,7 +130,7 @@ def extract_coin_key(user_input, data):
         "bitdao",
         "rendertoken",
         "aave",
-        "multiversx"
+        "multiversx",
     ]
     second_list = [
         "HEX",
@@ -189,9 +185,7 @@ def extract_coin_key(user_input, data):
         "BIT",
         "RNDR",
         "AAVE",
-        "EGLD"
-
-
+        "EGLD",
     ]
 
     # Get user input
@@ -220,9 +214,9 @@ def extract_coin_key(user_input, data):
 
         return bitcoin_data
     else:
-        user_string=check_spell(user_string)
+        user_string = check_spell(user_string)
 
-        user_string=user_string.lower()
+        user_string = user_string.lower()
 
         # print(user_string)
 
@@ -230,7 +224,7 @@ def extract_coin_key(user_input, data):
             # print("in loop = ",word)
             if word in first_list:
                 # If the word is in the first list, add its index to the new list
-                
+
                 # print("wordssssssssss =",word)
 
                 index = first_list.index(word)
@@ -246,7 +240,6 @@ def extract_coin_key(user_input, data):
 
             # print(bitcoin_data)
 
-
             return bitcoin_data
         else:
             return "I don't Know please enter currency name correctly"
@@ -260,11 +253,11 @@ def num_tokens_from_string(string: str, encoding_name: str) -> int:
 
 
 def remove_brackets(input_string):
-    input_string = input_string.replace('(', '')
-    input_string = input_string.replace(')', '')
-    input_string = input_string.replace('[', '')
-    input_string = input_string.replace(']', '')
-    input_string = input_string.replace('{', '')
-    input_string = input_string.replace('}', '')
-    
+    input_string = input_string.replace("(", "")
+    input_string = input_string.replace(")", "")
+    input_string = input_string.replace("[", "")
+    input_string = input_string.replace("]", "")
+    input_string = input_string.replace("{", "")
+    input_string = input_string.replace("}", "")
+
     return input_string
