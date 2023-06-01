@@ -1,10 +1,12 @@
 import asyncio
+import logging
 import os
-from .dependencies.rnn import app as app_rocketry
+
 import openai
 from dotenv import load_dotenv
 from fastapi import FastAPI
-import logging
+
+from .dependencies.rnn import app as app_rocketry
 
 logging.basicConfig(level=logging.INFO)
 

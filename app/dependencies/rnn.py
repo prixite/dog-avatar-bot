@@ -1,11 +1,13 @@
+import pickle
+
 import pandas as pd
 from darts import TimeSeries
 from darts.dataprocessing.transformers import Scaler
 from darts.models import RNNModel
-import pickle
-from app.dependencies.redis_client import get_redis_data
-from rocketry.conds import daily
 from rocketry import Rocketry
+from rocketry.conds import daily
+
+from app.dependencies.redis_client import get_redis_data
 
 app = Rocketry(execution="async", config={"task_execution": "async"})
 
