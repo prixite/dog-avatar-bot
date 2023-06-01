@@ -42,25 +42,25 @@ async def start_chat(user_input):
 
     # new_hex_data = remove_brackets(str(new_hex_data))
 
-    keywords=["hex", "bitcoin"]
-    keywords_second=["HEX","BTC"]
+    keywords = ["hex", "bitcoin"]
+    keywords_second = ["HEX", "BTC"]
 
-    check_user=user_input.lower().split()
+    check_user = user_input.lower().split()
 
-    currency_word=""
-    future_data=""
+    currency_word = ""
+    future_data = ""
 
     for word in check_user:
         if word in keywords:
             index = keywords.index(word)
-            currency_word=keywords_second[index]
-            
+            currency_word = keywords_second[index]
+
     if currency_word:
         try:
-            with open(f"app/dependencies/{currency_word}.pkl", 'rb') as f:
+            with open(f"app/dependencies/{currency_word}.pkl", "rb") as f:
                 future_data = pickle.load(f)
         except FileNotFoundError:
-            future_data=""
+            future_data = ""
 
     docs = chatbot.faiss_index.similarity_search(user_input, k=2)
 

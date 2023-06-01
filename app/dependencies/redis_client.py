@@ -9,7 +9,6 @@ redis_client = redis.Redis(
 )
 
 
-
 def get_redis_key():
     return "hex_data"
 

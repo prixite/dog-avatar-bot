@@ -183,8 +183,8 @@ def extract_coin_key(user_input, data):
         "masknetwork",
         "pancakeswap",
         "enjincoin",
-        "mxtoken"
-]
+        "mxtoken",
+    ]
     second_list = [
         "HEX",
         "PLSX",
@@ -288,7 +288,7 @@ def extract_coin_key(user_input, data):
         "MASK",
         "CAKE",
         "ENJ",
-        "MX"
+        "MX",
     ]
 
     # Get user input
@@ -310,13 +310,12 @@ def extract_coin_key(user_input, data):
         # Parse the JSON string into a Python dictionary
         data = json.loads(data_string)
 
-        print("curreny_symbol = ============",curreny_symbol)
+        print("curreny_symbol = ============", curreny_symbol)
 
         # Extract the Bitcoin data
         bitcoin_data = data["data"][curreny_symbol]
 
         # print(bitcoin_data)
-
 
         return bitcoin_data
     else:
@@ -356,5 +355,3 @@ def num_tokens_from_string(string: str, encoding_name: str) -> int:
     encoding = tiktoken.get_encoding(encoding_name)
     num_tokens = len(encoding.encode(string))
     return num_tokens
-
-

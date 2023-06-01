@@ -7,8 +7,8 @@ from app.dependencies.redis_client import get_redis_data
 from rocketry.conds import daily
 import logging
 from rocketry import Rocketry
-app = Rocketry(execution="async", config={"task_execution": "async"})
 
+app = Rocketry(execution="async", config={"task_execution": "async"})
 
 
 def train_lstm(currency_name):
@@ -22,9 +22,7 @@ def train_lstm(currency_name):
 
     dataa = hex_data["data"][currency_name][0]["quotes"]
 
-
     # print("dataaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa=========== ",dataa)
-
 
     # create a list to hold our data
     data_list = []
@@ -41,7 +39,6 @@ def train_lstm(currency_name):
 
     # convert list to pandas DataFrame
     df = pd.DataFrame(data_list, columns=["price", "volume_24h", "market_cap", "date"])
-
 
     # print("dataframefdarnme    data frame   ====================",df)
 
@@ -101,9 +98,9 @@ def train_lstm(currency_name):
     # print(f"HAhhhhhhhhhhhhhhhhhhhhhhh Stoppppppppppp me I am runninggggggggggggggggggg= {currency_name}")
 
 
-@app.task("daily")
+@app.task(daily)
 def run_train():
-    list_c=["HEX","BTC"]
+    list_c = ["HEX", "BTC"]
 
     for c in list_c:
         train_lstm(c)
