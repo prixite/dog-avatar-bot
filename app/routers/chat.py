@@ -50,13 +50,13 @@ async def start_chat(user_input):
 
     currency_word = ""
     future_data = ""
-    currency_word_name=""
+    currency_word_name = ""
 
     for word in check_user:
         if word in keywords:
             index = keywords.index(word)
             currency_word = keywords_second[index]
-            currency_word_name=word
+            currency_word_name = word
             break
 
     if currency_word:
@@ -91,7 +91,7 @@ async def start_chat(user_input):
     num_tokens_message = num_tokens_from_string(messages[0]["content"], "cl100k_base")
 
     if num_tokens_message > 4020:
-        text_splitter = TokenTextSplitter(chunk_size=4020, chunk_overlap=0)
+        text_splitter = TokenTextSplitter(chunk_size=4030, chunk_overlap=0)
         texts = text_splitter.split_text(str(messages[0]["content"]))
         messages[0]["content"] = texts[0]
 

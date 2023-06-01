@@ -8,8 +8,9 @@ from darts.models import RNNModel
 from rocketry import Rocketry
 from rocketry.conds import daily
 
-from app.dependencies.redis_client import get_redis_data,set_redis_data
+from app.dependencies.redis_client import get_redis_data, set_redis_data
 from app.dependencies.utils import load_hex
+
 app = Rocketry(execution="async", config={"task_execution": "async"})
 
 
