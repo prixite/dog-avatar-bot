@@ -1,3 +1,4 @@
+import logging
 import pickle
 
 import pandas as pd
@@ -6,7 +7,7 @@ from darts.dataprocessing.transformers import Scaler
 from darts.models import RNNModel
 from rocketry import Rocketry
 from rocketry.conds import daily
-import logging
+
 from app.dependencies.redis_client import get_redis_data
 
 app = Rocketry(execution="async", config={"task_execution": "async"})
