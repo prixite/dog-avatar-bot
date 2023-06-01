@@ -5,7 +5,6 @@ from darts.models import RNNModel
 import pickle
 from app.dependencies.redis_client import get_redis_data
 from rocketry.conds import daily
-import logging
 from rocketry import Rocketry
 
 app = Rocketry(execution="async", config={"task_execution": "async"})
