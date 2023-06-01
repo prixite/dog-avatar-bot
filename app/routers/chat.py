@@ -1,34 +1,23 @@
-import tiktoken
-
+import pickle
 import openai
 from fastapi import APIRouter
 
 from app.dependencies.redis_client import (
-    get_future_data,
     get_redis_data,
-    set_future_data,
     set_redis_data,
 )
 from langchain.text_splitter import TokenTextSplitter
 
-# from app.dependencies.rnn import train_lstm
 from app.dependencies.utils import (
     extract_coin_key,
     load_hex,
     num_tokens_from_string,
-    remove_brackets,
 )
 from app.internal.chatbot import Chatbot
 
 chatbot = Chatbot()
 
 router = APIRouter()
-
-
-# def load_dataframe():
-#     with open('df_reset.pkl', 'rb') as f:
-#         df = pickle.load(f)
-#     return df
 
 
 @router.post("/start_chat")
@@ -51,25 +40,27 @@ async def start_chat(user_input):
         texts = text_splitter.split_text(str(new_hex_data))
         new_hex_data = texts[0]
 
-    new_hex_data = remove_brackets(str(new_hex_data))
-    # print("new_hex_data = ",new_hex_data)
+    # new_hex_data = remove_brackets(str(new_hex_data))
 
-    # print(hex_data)
+    keywords=["hex", "bitcoin"]
+    keywords_second=["HEX","BTC"]
 
-    # df_bytes = get_future_data()
-    # if df_bytes is not None:
-    #     future_data = pickle.loads(df_bytes)
-    # else:
-    #     future_data = train_lstm()
-    #     df_bytes = pickle.dumps(future_data)
-    #     set_future_data(df_bytes)
+    check_user=user_input.lower().split()
 
-    # print(future_data)
+    currency_word=""
+    future_data=""
 
-    # currencies=["HEX","PLS","PLSX","BTC"]
-
-    # for c in currencies:
-    #     train_lstm(c)
+    for word in check_user:
+        if word in keywords:
+            index = keywords.index(word)
+            currency_word=keywords_second[index]
+            
+    if currency_word:
+        try:
+            with open(f"app/dependencies/{currency_word}.pkl", 'rb') as f:
+                future_data = pickle.load(f)
+        except FileNotFoundError:
+            future_data=""
 
     docs = chatbot.faiss_index.similarity_search(user_input, k=2)
 
@@ -77,15 +68,17 @@ async def start_chat(user_input):
     messages = [
         {
             "role": "system",
-            "content": f"""You are a chatbot that have information about Hex, Pulse Chain and PulseX currency.
-            I am going to provide you a few information_hex documents and Historical_currency_data in json format that contains information about a crypto currency, some FAQ and the historical data.
-            1) If the user asks any question or information that is present or related to the information in the provided documents then answer to that question using only these provided documents.
-            2) The user can ask about the historical price of any currency. You will have that currency information in the Historical_currency_data. Use that information to answer.
-            3) I will also provide some documents named as future hex_data. If the user query about the future prices or prediction then respone to that user question by using those future hex data. Always warn the user that predictions can be wrong.
+            "content": f"""You are a chatbot that have information about crypto currencies and other things too.\n
+            I am going to provide you Historical_currency_data in json format that contains information about a crypto currency, some FAQ and the historical data. Also a few information_hex documents.\n
+            1) The user will ask about the historical price of any currency. You will have that currency information in the Historical_currency_data in json format. Use the timestamp in json data to tell the price of a currency of a specific date. \n
+            Make sure to interpret the correct day and month from timestamp. Use that information to tell the price.\n
+            2) If the user asks any question or information that is present or related to the information in the provided documents then answer to that question using only these provided documents.\n
+            3) I will also provide some documents named as Future_Data. If the user query about the future prices (the future prices are one week ahead of the last date present in Historical_currency_data) or prediction then respone to that user question by using those Future_Data. Always warn the user that predictions can be wrong.\n
             4) If the user asks some questions that are not related to these three then response to those question by using your knowledge.\n
-            5) Please respond with no salutations and don't refer to the provided documents while answering to user. Never answer like according to the provided documents etc.
+            5) Please respond with no salutations and don't refer to the provided documents while answering to user. Never answer like according to the provided documents etc.\n
             Information_hex documents Start:\n {docs}.\n Information_hex documents End\n
             Historical_currency_data Start:\n {new_hex_data}. \n Historical_currency_data End\n
+            Future_Data Start: {future_data} \n Future_Data End.\n
             """,
         },
     ]

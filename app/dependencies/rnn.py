@@ -4,6 +4,11 @@ from darts.dataprocessing.transformers import Scaler
 from darts.models import RNNModel
 import pickle
 from app.dependencies.redis_client import get_redis_data
+from rocketry.conds import daily
+import logging
+from rocketry import Rocketry
+app = Rocketry(execution="async", config={"task_execution": "async"})
+
 
 
 def train_lstm(currency_name):
@@ -13,7 +18,13 @@ def train_lstm(currency_name):
     else:
         return
 
+    # print(f"hexdataaaaaaaaaaaaaaaaaaaaaaaaa {currency_name} ===========",hex_data)
+
     dataa = hex_data["data"][currency_name][0]["quotes"]
+
+
+    # print("dataaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa=========== ",dataa)
+
 
     # create a list to hold our data
     data_list = []
@@ -30,6 +41,9 @@ def train_lstm(currency_name):
 
     # convert list to pandas DataFrame
     df = pd.DataFrame(data_list, columns=["price", "volume_24h", "market_cap", "date"])
+
+
+    # print("dataframefdarnme    data frame   ====================",df)
 
     df["date"] = pd.to_datetime(df["date"])
 
@@ -83,3 +97,13 @@ def train_lstm(currency_name):
     # Save the DataFrame to a pickle file
     with open(f"app/dependencies/{currency_name}.pkl", "wb") as f:
         pickle.dump(df_reset, f)
+
+    # print(f"HAhhhhhhhhhhhhhhhhhhhhhhh Stoppppppppppp me I am runninggggggggggggggggggg= {currency_name}")
+
+
+@app.task("daily")
+def run_train():
+    list_c=["HEX","BTC"]
+
+    for c in list_c:
+        train_lstm(c)

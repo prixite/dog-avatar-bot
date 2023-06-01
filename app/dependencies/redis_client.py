@@ -9,14 +9,6 @@ redis_client = redis.Redis(
 )
 
 
-def get_future_data():
-    df_bytes = redis_client.get("future_data")
-    return df_bytes
-
-
-def set_future_data(df_bytes):
-    redis_client.set("future_data", df_bytes, ex=86400)
-
 
 def get_redis_key():
     return "hex_data"

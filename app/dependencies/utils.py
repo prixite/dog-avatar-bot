@@ -17,7 +17,7 @@ def load_hex():
     # Get the date and time one month ago
     time_start = time_end - relativedelta(months=1)
 
-    symbols = """HEX,PLSX,PLS,BTC,ETH,USDT,BNB,USDC,XRP,ADA,DOGE,SOL,MATIC,TRX,LTC,DOT,BUSD,SHIB,AVAX,DAI,WBTC,LINK,LEO,ATOM,UNI,XMR,OKB,ETC,XLM,TON,BCH,ICP,TUSD,FIL,LDO,APT,HBAR,CRO,ARB,VET,NEAR,QNT,GRT,APE,ALGO,USDP,SAND,EOS,RPL,BIT,RNDR,AAVE,EGLD"""
+    symbols = """HEX,PLSX,PLS,BTC,ETH,USDT,BNB,USDC,XRP,ADA,DOGE,SOL,MATIC,TRX,LTC,DOT,BUSD,SHIB,AVAX,DAI,WBTC,LINK,LEO,ATOM,UNI,XMR,OKB,ETC,XLM,TON,BCH,ICP,TUSD,FIL,LDO,APT,HBAR,CRO,ARB,VET,NEAR,QNT,GRT,APE,ALGO,USDP,SAND,EOS,RPL,BIT,RNDR,AAVE,EGLD,OP,FTM,MANA,XTZ,THETA,STX,CFX,AXS,FLOW,USDD,NEO,KCS,CHZ,IMX,CRV,BSV,MKR,SNX,INJ,KLAY,GUSD,MIOTA,KAVA,BTT,XDC,CSPR,ZEC,PAXG,SUI,LUNC,MINA,HT,PEPE,XEC,DASH,FXS,GMX,TWT,GT,FLR,NEXO,RUNE,WOO,LRC,ZIL,AGIX,MASK,CAKE,ENJ,MX"""
 
     parameters = {
         "symbol": symbols,
@@ -43,9 +43,9 @@ def load_hex():
         data = json.loads(response.text)
     except (ConnectionError, Timeout, TooManyRedirects) as e:
         print(e)
+        return "Coin Market Cap Api Limit Has been Reached PLease try after some time"
 
     # json_data = json.dumps(data)
-
     return data
 
 
@@ -58,7 +58,10 @@ def check_spell(user_input):
         Don't provide any explanations or answer any query. Here is a list of some correctly spelled crypto currencies names: ["hex","pulsex","pulsechain","bitcoin","ethereum","tether","bnb","usdcoin","xrp",
         "cardano","dogecoin","solana","polygon","tron","litecoin","polkadot","binanceusd","shibainu","avalanche","dai","wrappedbitcoin","chainlink","unussedleo","cosmos","uniswap",
         "monero","okb","ethereumclassic","stellar","toncoin","bitcoincash","internetcomputer","trueusd","filecoin","lidodao","aptos","hedera","cronos","arbitrum","vechain","nearprotocol",
-        "quant","thegraph","apeCoin","algorand","paxdollar","thesandbox","eos","rocketpool","bitdao","rendertoken","aave","multiversx"]. Dont add ['s] at the end of any corrected currency name.""",
+        "quant","thegraph","apeCoin","algorand","paxdollar","thesandbox","eos","rocketpool","bitdao","rendertoken","aave","multiversx","optimism","fantom","decentraland","tezos","thetanetwork","stacks","conflux",
+        "axieinfinity","flow","usdd","neo","kucointoken","chiliz","immutable","curvedaotoken","bitcoinsv","maker","synthetix","injective","klaytn","geminidollar","iota","kava","bittorrent","xdcnetwork","casper","zcash","paxgold","sui",
+        "terraclassic","mina","huobitoken","pepe","ecash","dash","fraxshare","gmx","trustwallettoken","gatetoken","flare","nexo","thorchain","woonetwork","loopring","zilliqa","singularitynet","masknetwork","pancakeswap","enjincoin",
+        "mxtoken"]. Dont add ['s] at the end of any corrected currency name.""",
         },
     ]
     messages.append({"role": "user", "content": user_input})
@@ -131,7 +134,57 @@ def extract_coin_key(user_input, data):
         "rendertoken",
         "aave",
         "multiversx",
-    ]
+        "optimism",
+        "fantom",
+        "decentraland",
+        "tezos",
+        "thetanetwork",
+        "stacks",
+        "conflux",
+        "axieinfinity",
+        "flow",
+        "usdd",
+        "neo",
+        "kucointoken",
+        "chiliz",
+        "immutable",
+        "curvedaotoken",
+        "bitcoinsv",
+        "maker",
+        "synthetix",
+        "injective",
+        "klaytn",
+        "geminidollar",
+        "iota",
+        "kava",
+        "bittorrent",
+        "xdcnetwork",
+        "casper",
+        "zcash",
+        "paxgold",
+        "sui",
+        "terraclassic",
+        "mina",
+        "huobitoken",
+        "pepe",
+        "ecash",
+        "dash",
+        "fraxshare",
+        "gmx",
+        "trustwallettoken",
+        "gatetoken",
+        "flare",
+        "nexo",
+        "thorchain",
+        "woonetwork",
+        "loopring",
+        "zilliqa",
+        "singularitynet",
+        "masknetwork",
+        "pancakeswap",
+        "enjincoin",
+        "mxtoken"
+]
     second_list = [
         "HEX",
         "PLSX",
@@ -186,6 +239,56 @@ def extract_coin_key(user_input, data):
         "RNDR",
         "AAVE",
         "EGLD",
+        "OP",
+        "FTM",
+        "MANA",
+        "XTZ",
+        "THETA",
+        "STX",
+        "CFX",
+        "AXS",
+        "FLOW",
+        "USDD",
+        "NEO",
+        "KCS",
+        "CHZ",
+        "IMX",
+        "CRV",
+        "BSV",
+        "MKR",
+        "SNX",
+        "INJ",
+        "KLAY",
+        "GUSD",
+        "MIOTA",
+        "KAVA",
+        "BTT",
+        "XDC",
+        "CSPR",
+        "ZEC",
+        "PAXG",
+        "SUI",
+        "LUNC",
+        "MINA",
+        "HT",
+        "PEPE",
+        "XEC",
+        "DASH",
+        "FXS",
+        "GMX",
+        "TWT",
+        "GT",
+        "FLR",
+        "NEXO",
+        "RUNE",
+        "WOO",
+        "LRC",
+        "ZIL",
+        "AGIX",
+        "MASK",
+        "CAKE",
+        "ENJ",
+        "MX"
     ]
 
     # Get user input
@@ -207,10 +310,13 @@ def extract_coin_key(user_input, data):
         # Parse the JSON string into a Python dictionary
         data = json.loads(data_string)
 
+        print("curreny_symbol = ============",curreny_symbol)
+
         # Extract the Bitcoin data
         bitcoin_data = data["data"][curreny_symbol]
 
         # print(bitcoin_data)
+
 
         return bitcoin_data
     else:
@@ -252,12 +358,3 @@ def num_tokens_from_string(string: str, encoding_name: str) -> int:
     return num_tokens
 
 
-def remove_brackets(input_string):
-    input_string = input_string.replace("(", "")
-    input_string = input_string.replace(")", "")
-    input_string = input_string.replace("[", "")
-    input_string = input_string.replace("]", "")
-    input_string = input_string.replace("{", "")
-    input_string = input_string.replace("}", "")
-
-    return input_string
