@@ -96,8 +96,6 @@ def train_lstm(currency_name):
     with open(f"app/dependencies/{currency_name}.pkl", "wb") as f:
         pickle.dump(df_reset, f)
 
-    # print(f"HAhhhhhhhhhhhhhhhhhhhhhhh Stoppppppppppp me I am runninggggggggggggggggggg= {currency_name}")
-
 
 @app.task(daily)
 def run_train():
