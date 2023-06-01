@@ -6,7 +6,7 @@ from darts.dataprocessing.transformers import Scaler
 from darts.models import RNNModel
 from rocketry import Rocketry
 from rocketry.conds import daily
-
+import logging
 from app.dependencies.redis_client import get_redis_data
 
 app = Rocketry(execution="async", config={"task_execution": "async"})
@@ -99,6 +99,7 @@ def train_lstm(currency_name):
 
 @app.task(daily)
 def run_train():
+    logging.info("Cron Function Started")
     list_c = ["HEX", "BTC"]
 
     for c in list_c:

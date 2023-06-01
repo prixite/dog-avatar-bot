@@ -1,13 +1,10 @@
 import pickle
+
 import openai
 from fastapi import APIRouter
-
-from app.dependencies.redis_client import (
-    get_redis_data,
-    set_redis_data,
-)
 from langchain.text_splitter import TokenTextSplitter
 
+from app.dependencies.redis_client import get_redis_data, set_redis_data
 from app.dependencies.utils import (
     extract_coin_key,
     load_hex,
@@ -25,11 +22,11 @@ async def start_chat(user_input):
     redis_data = get_redis_data()
     if redis_data and "hex_data" in redis_data:
         hex_data = redis_data["hex_data"]
-        print("got redis")
+        # print("got redis")
     else:
         hex_data = load_hex()
         set_redis_data({"hex_data": hex_data})
-        print("set redis")
+        # print("set redis")
 
     new_hex_data = extract_coin_key(user_input, hex_data)
 
@@ -82,7 +79,6 @@ async def start_chat(user_input):
             """,
         },
     ]
-
 
     num_tokens_message = num_tokens_from_string(messages[0]["content"], "cl100k_base")
 

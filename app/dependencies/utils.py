@@ -1,6 +1,7 @@
 import json
 import os
 from datetime import datetime
+
 import openai
 import tiktoken
 from dateutil.relativedelta import relativedelta
@@ -17,7 +18,7 @@ def load_hex():
     # Get the date and time one month ago
     time_start = time_end - relativedelta(months=1)
 
-    symbols = """HEX,PLSX,PLS,BTC,ETH,USDT,BNB,USDC,XRP,ADA,DOGE,SOL,MATIC,TRX,LTC,DOT,BUSD,SHIB,AVAX,DAI,WBTC,LINK,LEO,ATOM,UNI,XMR,OKB,ETC,XLM,TON,BCH,ICP,TUSD,FIL,LDO,APT,HBAR,CRO,ARB,VET,NEAR,QNT,GRT,APE,ALGO,USDP,SAND,EOS,RPL,BIT,RNDR,AAVE,EGLD,OP,FTM,MANA,XTZ,THETA,STX,CFX,AXS,FLOW,USDD,NEO,KCS,CHZ,IMX,CRV,BSV,MKR,SNX,INJ,KLAY,GUSD,MIOTA,KAVA,BTT,XDC,CSPR,ZEC,PAXG,SUI,LUNC,MINA,HT,PEPE,XEC,DASH,FXS,GMX,TWT,GT,FLR,NEXO,RUNE,WOO,LRC,ZIL,AGIX,MASK,CAKE,ENJ,MX"""
+    symbols = """HEX,PLSX,PLS,BTC,ETH,USDT,BNB,USDC,XRP,ADA,DOGE,SOL,MATIC,TRX,LTC,DOT,BUSD,SHIB,AVAX,DAI,WBTC,LINK,LEO,ATOM,UNI,XMR,OKB,ETC,XLM,TON,BCH,ICP,TUSD,FIL,LDO,APT,HBAR,CRO,ARB,VET,NEAR,QNT,GRT,APE,ALGO,USDP,SAND,EOS,RPL,BIT,RNDR,AAVE,EGLD,OP,FTM,MANA,XTZ,THETA,STX,CFX,AXS,FLOW,USDD,NEO,KCS,CHZ,IMX,CRV,BSV,MKR,SNX,INJ,KLAY,GUSD,MIOTA,KAVA,BTT,XDC,CSPR,ZEC,PAXG,SUI,LUNC,MINA,HT,PEPE,XEC,DASH,FXS,GMX,TWT,GT,FLR,NEXO,RUNE,WOO,LRC,ZIL,AGIX,MASK,CAKE,ENJ,MX"""  # noqa
 
     parameters = {
         "symbol": symbols,
@@ -47,6 +48,9 @@ def load_hex():
 
     # json_data = json.dumps(data)
     return data
+
+
+# flake8: noqa
 
 
 def check_spell(user_input):
@@ -310,7 +314,7 @@ def extract_coin_key(user_input, data):
         # Parse the JSON string into a Python dictionary
         data = json.loads(data_string)
 
-        print("curreny_symbol = ============", curreny_symbol)
+        # print("curreny_symbol = ============", curreny_symbol)
 
         # Extract the Bitcoin data
         bitcoin_data = data["data"][curreny_symbol]
