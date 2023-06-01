@@ -1,9 +1,9 @@
 import pickle
-
+import time
 import openai
 from fastapi import APIRouter
 from langchain.text_splitter import TokenTextSplitter
-
+import logging
 from app.dependencies.redis_client import get_redis_data, set_redis_data
 from app.dependencies.utils import (
     extract_coin_key,
@@ -91,10 +91,22 @@ async def start_chat(user_input):
 
     messages.append({"role": "user", "content": user_input})
 
-    response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo", messages=messages, temperature=0
-    )
+    retry_attempts = 2
+    retry_delay = 1  # delay in seconds
 
+    for attempt in range(retry_attempts):
+        try:
+            response = openai.ChatCompletion.create(
+                model="gpt-3.5-turbo", messages=messages, temperature=0
+            )
+            # if request is successful, break out of loop
+            break
+        except:
+            logging.info("Attempt failed due to openai server")
+            if attempt + 1 == retry_attempts:
+                return {"role": "system", "content": "Openai server is loaded with requests please try again"}
+            time.sleep(retry_delay)  # wait before retrying
+            
     message_content = response["choices"][0]["message"]["content"]
     role = response["choices"][0]["message"]["role"]
 
