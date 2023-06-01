@@ -1,13 +1,13 @@
 import json
 import os
 from datetime import datetime
-
+import logging
 import openai
 import tiktoken
 from dateutil.relativedelta import relativedelta
 from requests import Session
 from requests.exceptions import ConnectionError, Timeout, TooManyRedirects
-
+from app.dependencies.redis_client import set_redis_data
 
 def load_hex():
     url = "https://pro-api.coinmarketcap.com/v3/cryptocurrency/quotes/historical"
@@ -43,7 +43,7 @@ def load_hex():
         response = session.get(url, params=parameters)
         data = json.loads(response.text)
     except (ConnectionError, Timeout, TooManyRedirects) as e:
-        print(e)
+        logging.info(e)
         return "Coin Market Cap Api Limit Has been Reached PLease try after some time"
 
     # json_data = json.dumps(data)
@@ -359,3 +359,5 @@ def num_tokens_from_string(string: str, encoding_name: str) -> int:
     encoding = tiktoken.get_encoding(encoding_name)
     num_tokens = len(encoding.encode(string))
     return num_tokens
+
+

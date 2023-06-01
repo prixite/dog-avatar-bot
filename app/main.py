@@ -34,5 +34,4 @@ async def startup():
     "Run Rocketry and FastAPI"
     logging.info("Startup run")
     asyncio.create_task(app_rocketry.serve())
-    # await asyncio.gather(sched)
     logging.info("Startup complete")

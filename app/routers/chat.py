@@ -1,9 +1,11 @@
+import logging
 import pickle
 import time
+
 import openai
 from fastapi import APIRouter
 from langchain.text_splitter import TokenTextSplitter
-import logging
+
 from app.dependencies.redis_client import get_redis_data, set_redis_data
 from app.dependencies.utils import (
     extract_coin_key,
@@ -24,9 +26,11 @@ async def start_chat(user_input):
         hex_data = redis_data["hex_data"]
         # print("got redis")
     else:
-        hex_data = load_hex()
-        set_redis_data({"hex_data": hex_data})
+        # hex_data = load_hex()
+        # set_redis_data({"hex_data": hex_data})
         # print("set redis")
+
+        return "Don't have historical data yet in redis"
 
     new_hex_data = extract_coin_key(user_input, hex_data)
 
@@ -46,11 +50,14 @@ async def start_chat(user_input):
 
     currency_word = ""
     future_data = ""
+    currency_word_name=""
 
     for word in check_user:
         if word in keywords:
             index = keywords.index(word)
             currency_word = keywords_second[index]
+            currency_word_name=word
+            break
 
     if currency_word:
         try:
@@ -59,6 +66,8 @@ async def start_chat(user_input):
         except FileNotFoundError:
             future_data = ""
 
+    # print(f"futureeee data   ====={currency_word_name}",future_data)
+
     docs = chatbot.faiss_index.similarity_search(user_input, k=2)
 
     # flake8: noqa
@@ -66,28 +75,25 @@ async def start_chat(user_input):
         {
             "role": "system",
             "content": f"""You are a chatbot that have information about crypto currencies and other things too.\n
-            I am going to provide you Historical_currency_data in json format that contains information about a crypto currency and the historical data. Also a few information_hex documents.\n
+            I am going to provide you Historical_currency_data in json format that contains information about a crypto currency and the historical data. Also a few Information_hex_pulse documents.\n
             1) The user will ask about the historical price of any currency. You will have that currency information in the Historical_currency_data in json format. Use the timestamp in json data to tell the price of a currency of a specific date. \n
             Make sure to interpret the correct day and month from timestamp. Use that information to tell the price.\n
             2) If the user asks any question or information that is present or related to the information in the provided documents then answer to that question using only these provided documents.\n
-            3) If the user query about the future prices or about a date that is present in Future_Data then respone to that user question by using the Future_Data. Always warn the user that predictions can be wrong.\n
+            3) If the user query about the price on a date that is present in Future_Data then respone to that user question by using the Future_Data. Always warn the user that predictions can be wrong.\n
             4) If the user asks some questions that are not related to these three then response to those question by using your knowledge.\n
-            5) Please respond with no salutations and don't refer to the provided documents while answering to user. Never answer like according to the provided documents etc.\n
-            Information_hex documents Start:\n {docs}.\n Information_hex documents End\n
-            Historical_currency_data Start:\n {new_hex_data}. \n Historical_currency_data End.\n
-            Future_Data Start: {future_data} \n Future_Data End.\n
+            5) Please respond with no salutations and don't refer to the provided documents while answering to user.\n
+            Information_hex_pulse documents Starts:\n {docs}.\n Information_hex_pulse documents End\n
+            Historical_currency_data Starts:\n {new_hex_data}. \n Historical_currency_data End.\n
+            Future prediction data of {currency_word_name} starts:\n {future_data}\n Future prediction data of {currency_word_name} end.\n
             """,
         },
     ]
-
     num_tokens_message = num_tokens_from_string(messages[0]["content"], "cl100k_base")
 
-    if num_tokens_message > 4000:
-        text_splitter = TokenTextSplitter(chunk_size=4000, chunk_overlap=0)
+    if num_tokens_message > 4020:
+        text_splitter = TokenTextSplitter(chunk_size=4020, chunk_overlap=0)
         texts = text_splitter.split_text(str(messages[0]["content"]))
         messages[0]["content"] = texts[0]
-
-    # print("num_tokens_message = ",num_tokens_message)
 
     messages.append({"role": "user", "content": user_input})
 
@@ -104,9 +110,12 @@ async def start_chat(user_input):
         except:
             logging.info("Attempt failed due to openai server")
             if attempt + 1 == retry_attempts:
-                return {"role": "system", "content": "Openai server is loaded with requests please try again"}
+                return {
+                    "role": "system",
+                    "content": "Openai server is loaded with requests please try again",
+                }
             time.sleep(retry_delay)  # wait before retrying
-            
+
     message_content = response["choices"][0]["message"]["content"]
     role = response["choices"][0]["message"]["role"]
 

@@ -8,8 +8,8 @@ from darts.models import RNNModel
 from rocketry import Rocketry
 from rocketry.conds import daily
 
-from app.dependencies.redis_client import get_redis_data
-
+from app.dependencies.redis_client import get_redis_data,set_redis_data
+from app.dependencies.utils import load_hex
 app = Rocketry(execution="async", config={"task_execution": "async"})
 
 
@@ -102,6 +102,9 @@ def train_lstm(currency_name):
 def run_train():
     logging.info("Cron Function Started")
     list_c = ["HEX", "BTC"]
+
+    hex_data = load_hex()
+    set_redis_data({"hex_data": hex_data})
 
     for c in list_c:
         train_lstm(c)
