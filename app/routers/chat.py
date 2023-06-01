@@ -82,8 +82,8 @@ async def start_chat(user_input):
 
     num_tokens_message = num_tokens_from_string(messages[0]["content"], "cl100k_base")
 
-    if num_tokens_message > 4400:
-        text_splitter = TokenTextSplitter(chunk_size=4400, chunk_overlap=0)
+    if num_tokens_message > 4000:
+        text_splitter = TokenTextSplitter(chunk_size=4000, chunk_overlap=0)
         texts = text_splitter.split_text(str(messages[0]["content"]))
         messages[0]["content"] = texts[0]
 
