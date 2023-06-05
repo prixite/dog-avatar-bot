@@ -6,11 +6,10 @@ import openai
 from fastapi import APIRouter
 from langchain.text_splitter import TokenTextSplitter
 
-from app.dependencies.redis_client import get_redis_data, set_redis_data
+from app.dependencies.redis_client import get_historical_redis_data,get_list_data
 from app.dependencies.utils import (
-    extract_coin_key,
-    load_hex,
     num_tokens_from_string,
+    get_currency_data
 )
 from app.internal.chatbot import Chatbot
 
@@ -21,18 +20,26 @@ router = APIRouter()
 
 @router.post("/start_chat")
 async def start_chat(user_input):
-    redis_data = get_redis_data()
-    if redis_data and "hex_data" in redis_data:
-        hex_data = redis_data["hex_data"]
-        # print("got redis")
+
+    # store_historical_in_redis()
+
+    data_dict=get_list_data(user_input)
+
+    if data_dict:
+        currency_name=data_dict["name"]
+        price_coin=data_dict["price"]
+        coin_symbol=data_dict["symbol"]
+
+        
+        json_data = get_historical_redis_data("historical_data")
+
+        new_hex_data=get_currency_data(json_data,coin_symbol)
     else:
-        # hex_data = load_hex()
-        # set_redis_data({"hex_data": hex_data})
-        # print("set redis")
+        return "No currrency found"
 
-        return "Don't have historical data yet in redis"
 
-    new_hex_data = extract_coin_key(user_input, hex_data)
+
+    # print(f"pp: {currency_name} = ",price_coin)
 
     num_tokens = num_tokens_from_string(str(new_hex_data), "cl100k_base")
 
@@ -41,30 +48,21 @@ async def start_chat(user_input):
         texts = text_splitter.split_text(str(new_hex_data))
         new_hex_data = texts[0]
 
-    # new_hex_data = remove_brackets(str(new_hex_data))
+    # print("new_hex_data = ",new_hex_data)
 
-    keywords = ["hex", "bitcoin"]
-    keywords_second = ["HEX", "BTC"]
+    # keywords = ["hex", "bitcoin"]
+    # keywords_second = ["HEX", "BTC"]
 
-    check_user = user_input.lower().split()
+    # check_user = user_input.lower().split()
+    # future_data = ""
+  
 
-    currency_word = ""
-    future_data = ""
-    currency_word_name = ""
-
-    for word in check_user:
-        if word in keywords:
-            index = keywords.index(word)
-            currency_word = keywords_second[index]
-            currency_word_name = word
-            break
-
-    if currency_word:
-        try:
-            with open(f"app/dependencies/{currency_word}.pkl", "rb") as f:
-                future_data = pickle.load(f)
-        except FileNotFoundError:
-            future_data = ""
+    # if currency_word:
+    #     try:
+    #         with open(f"app/dependencies/{currency_word}.pkl", "rb") as f:
+    #             future_data = pickle.load(f)
+    #     except FileNotFoundError:
+    #         future_data = ""
 
     # print(f"futureeee data   ====={currency_word_name}",future_data)
 
@@ -74,17 +72,16 @@ async def start_chat(user_input):
     messages = [
         {
             "role": "system",
-            "content": f"""You are a chatbot that have information about crypto currencies and other things too.\n
-            I am going to provide you Historical_currency_data in json format that contains information about a crypto currency and the historical data. Also a few Information_hex_pulse documents.\n
+            "content": f"""I am going to provide you Historical_currency_data in json format that contains information about a crypto currency and the historical data. Also a few Information_hex_pulse documents.\n
             1) The user will ask about the historical price of any currency. You will have that currency information in the Historical_currency_data in json format. Use the timestamp in json data to tell the price of a currency of a specific date. \n
             Make sure to interpret the correct day and month from timestamp. Use that information to tell the price.\n
-            2) If the user asks any question or information that is present or related to the information in the provided documents then answer to that question using only these provided documents.\n
-            3) If the user query about the price on a date that is present in Future_Data then respone to that user question by using the Future_Data. Always warn the user that predictions can be wrong.\n
-            4) If the user asks some questions that are not related to these three then response to those question by using your knowledge.\n
-            5) Please respond with no salutations and don't refer to the provided documents while answering to user.\n
+            2) If the user asks about a currency price like "what is xrp price or what is bitcoin price", tell the price from the current price of that currency. The current price or price of {currency_name} is {price_coin}\n
+            3) If the user asks any question or information that is present or related to the information in the provided documents then answer to that question using only these provided documents.\n
+            4) If the user query about the price on a date that is present in Future_Data then respone to that user question by using the Future_Data. Always warn the user that predictions can be wrong.\n
+            5) If the user asks some questions that are not related to these three then response to those question by using your knowledge.\n
+            6) Please respond with no salutations and don't refer to the provided documents while answering to user.\n
             Information_hex_pulse documents Starts:\n {docs}.\n Information_hex_pulse documents End\n
-            Historical_currency_data Starts:\n {new_hex_data}. \n Historical_currency_data End.\n
-            Future prediction data of {currency_word_name} starts:\n {future_data}\n Future prediction data of {currency_word_name} end.\n
+            Historical_currency_data of {currency_name} Starts:\n {new_hex_data}. \n Historical_currency_data of {currency_name} End.\n
             """,
         },
     ]

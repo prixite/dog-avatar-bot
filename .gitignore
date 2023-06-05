@@ -11,3 +11,5 @@ extract_data.py
 scheduler.py
 app/dependencies/BTC.pkl
 app/dependencies/HEX.pkl
+listcoinsapi.py
+test
