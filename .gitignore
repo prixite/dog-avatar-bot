@@ -1,0 +1,13 @@
+__pycache__
+venv
+.env
+demo
+.vscode
+detectdate.py
+linreg.py
+output.txt
+testcoinapi.py
+extract_data.py
+scheduler.py
+app/dependencies/BTC.pkl
+app/dependencies/HEX.pkl

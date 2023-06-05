@@ -1,0 +1,42 @@
+name: deploy-gpt
+on:
+  push:
+    branches:
+      # When someone push to `master` branch
+      - master
+
+jobs:
+  deploy:
+    concurrency:
+      group: ${{ github.ref }}
+    name: "deploy-gpt"
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure SSH
+        run: |
+          mkdir -p ~/.ssh/
+          echo "$SSH_KEY" > ~/.ssh/staging.key
+          chmod 600 ~/.ssh/staging.key
+          cat >>~/.ssh/config <<END
+          Host staging
+            HostName $SSH_HOST
+            User $SSH_USER
+            IdentityFile ~/.ssh/staging.key
+            StrictHostKeyChecking no
+          END
+        env:
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_KEY: ${{ secrets.SSH_KEY }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+
+      - name: Pull the latest code to the staging environment
+        run: ssh staging 'cd dog-avatar-bot && git pull'
+
+      - name: Start containers
+        run: |
+          ssh staging 'cd dog-avatar-bot && docker compose build'
+          ssh staging 'cd dog-avatar-bot && docker compose up -d'
+      - name: Test the App
+        run: |
+          ssh staging 'if [ $( docker ps -a | grep richai-gpt | wc -l ) -gt 0 ]; then  echo "richai-gpt exists"; else   echo "richai-gpt does not exist" && raise error; fi'
