@@ -29,9 +29,9 @@ async def root():
     return "crypto-api"
 
 
-# @app.on_event("startup")
-# async def startup():
-#     "Run Rocketry and FastAPI"
-#     logging.info("Startup run")
-#     asyncio.create_task(app_rocketry.serve())
-#     logging.info("Startup complete")
+@app.on_event("startup")
+async def startup():
+    "Run Rocketry and FastAPI"
+    logging.info("Startup run")
+    asyncio.create_task(app_rocketry.serve())
+    logging.info("Startup complete")

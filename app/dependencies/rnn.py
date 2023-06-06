@@ -8,22 +8,22 @@ from darts.models import RNNModel
 from rocketry import Rocketry
 from rocketry.conds import daily
 
-from app.dependencies.redis_client import  set_redis_data
-# from app.dependencies.utils import load_hex
+from app.dependencies.utils import store_historical_in_redis,get_currency_data
+from app.dependencies.redis_client import get_historical_redis_data
 
 app = Rocketry(execution="async", config={"task_execution": "async"})
 
 
 def train_lstm(currency_name):
-    redis_data = get_redis_data()
-    if redis_data and "hex_data" in redis_data:
-        hex_data = redis_data["hex_data"]
-    else:
-        return
+
+    json_data = get_historical_redis_data("historical_data")
+
+    hex_data=get_currency_data(json_data, currency_name)
+
 
     # print(f"hexdataaaaaaaaaaaaaaaaaaaaaaaaa {currency_name} ===========",hex_data)
 
-    dataa = hex_data["data"][currency_name][0]["quotes"]
+    dataa = hex_data["quotes"]
 
     # print("dataaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa=========== ",dataa)
 
@@ -104,8 +104,9 @@ def run_train():
     logging.info("Cron Function Started")
     list_c = ["HEX", "BTC"]
 
-    hex_data = load_hex()
-    set_redis_data({"hex_data": hex_data})
+    store_historical_in_redis()
 
-    # for c in list_c:
-    #     train_lstm(c)
+    for c in list_c:
+        train_lstm(c)
+    
+
