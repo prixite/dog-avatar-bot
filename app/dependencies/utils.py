@@ -14,6 +14,7 @@ from app.dependencies.redis_client import (
     set_redis_data,
 )
 
+
 def num_tokens_from_string(string: str, encoding_name: str) -> int:
     """Returns the number of tokens in a text string."""
     encoding = tiktoken.get_encoding(encoding_name)

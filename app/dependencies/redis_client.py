@@ -54,7 +54,7 @@ def get_historical_redis_data(key):
         json_data = json.loads(data)
 
         return json_data
-    
+
     return None
 
 
@@ -72,14 +72,13 @@ def get_currencylist_redis_data(key):
 def get_list_data(user_message):
     data = get_currencylist_redis_data("currency_dict_list")
 
-    user_message=user_message.replace("$","")
-    user_message=user_message.replace("?","")
-    
+    user_message = user_message.replace("$", "")
+    user_message = user_message.replace("?", "")
 
     user_message = user_message.lower().split()
 
     # Add exclusion list
-    exclusion_list = ["of", "may", "the", "was","what","is"]
+    exclusion_list = ["of", "may", "the", "was", "what", "is"]
 
     for item in data:
         item_name_tokens = item["name"].lower().replace(" ", "").split()

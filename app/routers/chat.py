@@ -37,7 +37,9 @@ async def start_chat(user_input):
             new_hex_data = get_currency_data(json_data, coin_symbol)
 
         else:
-            new_hex_data = "PLease Enter Correct Currency name without spaces or symbol!!"
+            new_hex_data = (
+                "PLease Enter Correct Currency name without spaces or symbol!!"
+            )
 
     else:
         currency_name = ""
@@ -53,7 +55,6 @@ async def start_chat(user_input):
         new_hex_data = texts[0]
 
     future_data = ""
-
 
     if coin_symbol:
         try:
