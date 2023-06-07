@@ -1,3 +1,4 @@
+import datetime
 import logging
 import pickle
 import time
@@ -12,8 +13,6 @@ from app.dependencies.redis_client import (
 )
 from app.dependencies.utils import get_currency_data, num_tokens_from_string
 from app.internal.chatbot import Chatbot
-import datetime
-
 
 chatbot = Chatbot()
 
@@ -22,7 +21,6 @@ router = APIRouter()
 
 @router.post("/start_chat")
 async def start_chat(user_input):
-    
     current_date = datetime.date.today()
     formatted_date = current_date.strftime("%d %B %Y")
 
@@ -39,9 +37,9 @@ async def start_chat(user_input):
             new_hex_data = get_currency_data(json_data, coin_symbol)
 
         else:
-            new_hex_data=""
+            new_hex_data = "PLease Enter Correct Currency symbol or name!!"
 
-        # print(f"pp: {currency_name} = ",price_coin)
+        print(f"pp: {currency_name} = ",price_coin)
 
         # print(new_hex_data)
     else:
@@ -50,15 +48,12 @@ async def start_chat(user_input):
         coin_symbol = ""
         new_hex_data = ""
 
-    
-
     num_tokens = num_tokens_from_string(str(new_hex_data), "cl100k_base")
 
     if num_tokens > 3000:
         text_splitter = TokenTextSplitter(chunk_size=3000, chunk_overlap=0)
         texts = text_splitter.split_text(str(new_hex_data))
         new_hex_data = texts[0]
-
 
     future_data = ""
 
@@ -77,19 +72,18 @@ async def start_chat(user_input):
             "role": "system",
             "content": f"""I am going to provide you Historical_currency_price_data in json format that contains information about a crypto currency and its historical data. Also a few Information_hex_pulse documents.\n
             1) The user will ask about the historical price of any currency. You will have that currency information in the Historical_currency_price_data in json format. Use the timestamp in json data to tell the price of a currency of a specific date. \n
-            2) If the user asks about a currency price like "what is xrp price or what is bitcoin price", tell the price from the current price of that currency. The current price or price of currency_name: {currency_name} / currency_symbol: {coin_symbol} is {price_coin}\n
+            2) If the user asks about a currency price like "what is xrp price or what is bitcoin price", tell the price from the current price of that currency. The current / today's price or price of currency_name: {currency_name} / currency_symbol: {coin_symbol} on {formatted_date} is {price_coin}\n
             3) If the user asks any question or information that is present or related to the information in the provided documents then answer to that question using only these provided documents.\n
             4) If the user asks about a date that is ahead of the {formatted_date} or ask about the prediction of price like "will the hex price increase or decrease" then that use the future prices provided to you to predict the price or trend of a currency. \n
             5) If the user asks some questions that are not related to these documents or you don't find in documents then respond to those question by using your knowledge.\n
             6) Please respond with no salutations and don't refer to the provided documents while answering to user.\n
             Information_hex_pulse documents Starts:\n {docs}.\n Information_hex_pulse documents End\n
-            Historical_currency_price_data of {currency_name} Starts:\n {new_hex_data}. \n Historical_currency_price_data of {currency_name} End.\n
-            provided future prices of {currency_name}:\n {future_data}\n 
+            Historical_currency_price_data of {currency_name} :\n {new_hex_data}. \n Historical_currency_price_data of {currency_name} End.\n
+            provided future prices of {currency_name}:\n {future_data}\n
             """,
         },
     ]
     num_tokens_message = num_tokens_from_string(messages[0]["content"], "cl100k_base")
-
 
     if num_tokens_message > 4040:
         text_splitter = TokenTextSplitter(chunk_size=4040, chunk_overlap=0)
@@ -97,7 +91,6 @@ async def start_chat(user_input):
         messages[0]["content"] = texts[0]
 
     messages.append({"role": "user", "content": user_input})
-    
 
     retry_attempts = 2
     retry_delay = 1  # delay in seconds
