@@ -39,7 +39,7 @@ async def start_chat(user_input):
         else:
             new_hex_data = "PLease Enter Correct Currency symbol or name!!"
 
-        print(f"pp: {currency_name} = ",price_coin)
+        print(f"pp: {currency_name} = ", price_coin)
 
         # print(new_hex_data)
     else:

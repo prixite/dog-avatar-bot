@@ -102,7 +102,7 @@ def run_train():
     logging.info("Cron Function Started")
     list_c = ["HEX", "BTC"]
 
-    # store_historical_in_redis()
+    store_historical_in_redis()
 
-    # for c in list_c:
-    #     train_lstm(c)
+    for c in list_c:
+        train_lstm(c)

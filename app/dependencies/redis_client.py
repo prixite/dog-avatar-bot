@@ -21,36 +21,38 @@ def set_redis_data(key, data):
 def get_10k_latestlist_data_from_redis(key):
     data = redis_client.get(key)
     if data:
-        json_data = json.loads(data)              
+        json_data = json.loads(data)
 
         cryptocurrencies = []
         symbols_c = ""
         # Iterate through the `json_data` list
         for data_obj in json_data:
             # Extract `data` list
-            data_list = data_obj['data']
+            data_list = data_obj["data"]
             # Iterate through the `data` list
             for crypto in data_list:
                 # Extract the `name` and `symbol` of each cryptocurrency
-                name = crypto['name']
-                symbol = crypto['symbol']
-                id = str(crypto['id'])
-                price = crypto['quote']['USD']['price']  # Extract price
+                name = crypto["name"]
+                symbol = crypto["symbol"]
+                id = str(crypto["id"])
+                price = crypto["quote"]["USD"]["price"]  # Extract price
 
                 symbols_c += symbol + ","
                 # Append the `name` and `symbol` to the `cryptocurrencies` list as a dictionary
-                cryptocurrencies.append({"name": name, "id": id, "symbol": symbol, "price": price})
+                cryptocurrencies.append(
+                    {"name": name, "id": id, "symbol": symbol, "price": price}
+                )
 
         return cryptocurrencies
-        
+
     return None
 
 
 def get_historical_redis_data(key):
     data = redis_client.get(key)
     if data is not None:
-        json_data=json.loads(data)
-    
+        json_data = json.loads(data)
+
         return json_data
     else:
         return None
@@ -58,14 +60,13 @@ def get_historical_redis_data(key):
 
 def get_currencylist_redis_data(key):
     data = redis_client.get(key)
-    if data is None: 
+    if data is None:
         # Handle the case where the key does not exist
         return None
     else:
         # Parse the JSON string back into a list
         data = json.loads(data)
         return data
-    
 
 
 def get_list_data(user_message):
@@ -74,8 +75,8 @@ def get_list_data(user_message):
     user_message = user_message.lower().split()
 
     for item in data:
-        item_name_tokens = item['name'].lower().replace(" ", "").split()
-        item_symbol_tokens = item['symbol'].lower().split()
+        item_name_tokens = item["name"].lower().replace(" ", "").split()
+        item_symbol_tokens = item["symbol"].lower().split()
 
         # Checking if any token from the name or symbol is in the user's message
         for token in item_name_tokens + item_symbol_tokens:
