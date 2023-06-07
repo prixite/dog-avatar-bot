@@ -17,13 +17,9 @@ app = Rocketry(execution="async", config={"task_execution": "async"})
 def train_lstm(currency_name):
     json_data = get_historical_redis_data("historical_data")
 
-    hex_data = get_currency_data(json_data, currency_name)
+    historical_data = get_currency_data(json_data, currency_name)
 
-    # print(f"hexdataaaaaaaaaaaaaaaaaaaaaaaaa {currency_name} ===========",hex_data)
-
-    dataa = hex_data["quotes"]
-
-    # print("dataaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa=========== ",dataa)
+    dataa = historical_data["quotes"]
 
     # create a list to hold our data
     data_list = []

@@ -3,8 +3,6 @@ venv
 .env
 demo
 .vscode
-detectdate.py
-linreg.py
 app/dependencies/BTC.pkl
 app/dependencies/HEX.pkl
 test

@@ -54,25 +54,32 @@ def get_historical_redis_data(key):
         json_data = json.loads(data)
 
         return json_data
-    else:
-        return None
+    
+    return None
 
 
 def get_currencylist_redis_data(key):
     data = redis_client.get(key)
-    if data is None:
-        # Handle the case where the key does not exist
-        return None
-    else:
+    if data:
         # Parse the JSON string back into a list
         data = json.loads(data)
         return data
+
+    # Handle the case where the key does not exist
+    return None
 
 
 def get_list_data(user_message):
     data = get_currencylist_redis_data("currency_dict_list")
 
+    user_message=user_message.replace("$","")
+    user_message=user_message.replace("?","")
+    
+
     user_message = user_message.lower().split()
+
+    # Add exclusion list
+    exclusion_list = ["of", "may", "the", "was","what","is"]
 
     for item in data:
         item_name_tokens = item["name"].lower().replace(" ", "").split()
@@ -80,7 +87,8 @@ def get_list_data(user_message):
 
         # Checking if any token from the name or symbol is in the user's message
         for token in item_name_tokens + item_symbol_tokens:
-            if token in user_message:
+            # Check if token is in the exclusion list
+            if token not in exclusion_list and token in user_message:
                 return item
 
     return None

@@ -37,11 +37,8 @@ async def start_chat(user_input):
             new_hex_data = get_currency_data(json_data, coin_symbol)
 
         else:
-            new_hex_data = "PLease Enter Correct Currency symbol or name!!"
+            new_hex_data = "PLease Enter Correct Currency name without spaces or symbol!!"
 
-        print(f"pp: {currency_name} = ", price_coin)
-
-        # print(new_hex_data)
     else:
         currency_name = ""
         price_coin = ""
@@ -56,6 +53,7 @@ async def start_chat(user_input):
         new_hex_data = texts[0]
 
     future_data = ""
+
 
     if coin_symbol:
         try:
@@ -74,7 +72,7 @@ async def start_chat(user_input):
             1) The user will ask about the historical price of any currency. You will have that currency information in the Historical_currency_price_data in json format. Use the timestamp in json data to tell the price of a currency of a specific date. \n
             2) If the user asks about a currency price like "what is xrp price or what is bitcoin price", tell the price from the current price of that currency. The current / today's price or price of currency_name: {currency_name} / currency_symbol: {coin_symbol} on {formatted_date} is {price_coin}\n
             3) If the user asks any question or information that is present or related to the information in the provided documents then answer to that question using only these provided documents.\n
-            4) If the user asks about a date that is ahead of the {formatted_date} or ask about the prediction of price like "will the hex price increase or decrease" then that use the future prices provided to you to predict the price or trend of a currency. \n
+            4) If the user asks about a date that is ahead of the today's date {formatted_date} or ask about the prediction of price like "will the hex price increase or decrease" then that use the future prices provided to you to predict the price or trend of a currency or price of currency from a future date. \n
             5) If the user asks some questions that are not related to these documents or you don't find in documents then respond to those question by using your knowledge.\n
             6) Please respond with no salutations and don't refer to the provided documents while answering to user.\n
             Information_hex_pulse documents Starts:\n {docs}.\n Information_hex_pulse documents End\n
