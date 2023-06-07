@@ -17,7 +17,7 @@ def load_docs():
         with open(pickle_file, "rb") as f:
             faiss_index = pickle.load(f)
     else:
-        # If pickle file doesn't exist, process the documents and save to a new pickle file # noqa
+        # If pickle file doesn't exist, process the documents and save to a new pickle file
         loader = PDFMinerLoader("./app/internal/hexpulsedata.pdf")
         data = loader.load()
         text_splitter = RecursiveCharacterTextSplitter(
