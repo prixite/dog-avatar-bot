@@ -18,15 +18,14 @@ def set_redis_data(key, data):
     redis_client.expire(key, timedelta(days=1))
 
 
-def get_10k_latestlist_data_from_redis(key):
-    data = redis_client.get(key)
-    if data:
-        json_data = json.loads(data)
+def get_10k_currency_latest_from_redis(key):
+    latest_list_data = redis_client.get(key)
+    if latest_list_data:
+        latest_list_json_data = json.loads(latest_list_data)
 
         cryptocurrencies = []
-        symbols_c = ""
         # Iterate through the `json_data` list
-        for data_obj in json_data:
+        for data_obj in latest_list_json_data:
             # Extract `data` list
             data_list = data_obj["data"]
             # Iterate through the `data` list
@@ -37,7 +36,6 @@ def get_10k_latestlist_data_from_redis(key):
                 id = str(crypto["id"])
                 price = crypto["quote"]["USD"]["price"]  # Extract price
 
-                symbols_c += symbol + ","
                 # Append the `name` and `symbol` to the `cryptocurrencies` list as a dictionary
                 cryptocurrencies.append(
                     {"name": name, "id": id, "symbol": symbol, "price": price}
@@ -49,46 +47,21 @@ def get_10k_latestlist_data_from_redis(key):
 
 
 def get_historical_redis_data(key):
-    data = redis_client.get(key)
-    if data is not None:
-        json_data = json.loads(data)
+    historical_data = redis_client.get(key)
+    if historical_data is not None:
+        historical_json_data = json.loads(historical_data)
 
-        return json_data
+        return historical_json_data
 
     return None
 
 
 def get_currencylist_redis_data(key):
-    data = redis_client.get(key)
-    if data:
+    currency_data = redis_client.get(key)
+    if currency_data:
         # Parse the JSON string back into a list
-        data = json.loads(data)
+        data = json.loads(currency_data)
         return data
 
         # Handle the case where the key does not exist
-    return None
-
-
-def get_list_data(user_message):
-    data = get_currencylist_redis_data("currency_dict_list")
-
-    user_message = user_message.replace("$", "")
-    user_message = user_message.replace("?", "")
-
-    user_message = user_message.lower().split()
-
-    # Add exclusion list
-    exclusion_list = ["of", "may", "the", "was", "what", "is"]
-
-    if data:
-        for item in data:
-            item_name_tokens = item["name"].lower().replace(" ", "").split()
-            item_symbol_tokens = item["symbol"].lower().split()
-
-            # Checking if any token from the name or symbol is in the user's message
-            for token in item_name_tokens + item_symbol_tokens:
-                # Check if token is in the exclusion list
-                if token not in exclusion_list and token in user_message:
-                    return item
-
     return None

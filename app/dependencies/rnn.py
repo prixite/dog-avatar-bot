@@ -9,15 +9,18 @@ from rocketry import Rocketry
 from rocketry.conds import daily
 
 from app.dependencies.redis_client import get_historical_redis_data
-from app.dependencies.utils import get_currency_data, store_historical_in_redis
+from app.dependencies.utils import get_each_currency_data, store_historical_in_redis,store_10k_currency_latest_in_redis
 
 app = Rocketry(execution="async", config={"task_execution": "async"})
 
 
 def train_lstm(currency_name):
-    json_data = get_historical_redis_data("historical_data")
+    historical_json_data = get_historical_redis_data("historical_data")
 
-    historical_data = get_currency_data(json_data, currency_name)
+    if historical_json_data:
+        historical_data = get_each_currency_data(historical_json_data, currency_name)
+
+
 
     dataa = historical_data["quotes"]
 
@@ -37,7 +40,6 @@ def train_lstm(currency_name):
     # convert list to pandas DataFrame
     df = pd.DataFrame(data_list, columns=["price", "volume_24h", "market_cap", "date"])
 
-    # print("dataframefdarnme    data frame   ====================",df)
 
     df["date"] = pd.to_datetime(df["date"])
 
@@ -96,9 +98,9 @@ def train_lstm(currency_name):
 @app.task(daily)
 def run_train():
     logging.info("Cron Function Started")
-    list_c = ["HEX", "BTC"]
+    list_of_currencies = ["HEX", "BTC"]
 
     store_historical_in_redis()
 
-    for c in list_c:
-        train_lstm(c)
+    for currency_name in list_of_currencies:
+        train_lstm(currency_name)
