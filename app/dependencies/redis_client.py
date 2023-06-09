@@ -81,7 +81,6 @@ def get_list_data(user_message):
     exclusion_list = ["of", "may", "the", "was", "what", "is"]
 
     if data:
-
         for item in data:
             item_name_tokens = item["name"].lower().replace(" ", "").split()
             item_symbol_tokens = item["symbol"].lower().split()
