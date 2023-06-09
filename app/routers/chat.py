@@ -7,11 +7,12 @@ import openai
 from fastapi import APIRouter
 from langchain.text_splitter import TokenTextSplitter
 
-from app.dependencies.redis_client import (
-    get_historical_redis_data,
-    get_list_data,
+from app.dependencies.redis_client import get_historical_redis_data
+from app.dependencies.utils import (
+    get_each_currency_data,
+    get_each_currency_dict_data,
+    num_tokens_from_string,
 )
-from app.dependencies.utils import get_currency_data, num_tokens_from_string
 from app.internal.chatbot import Chatbot
 
 chatbot = Chatbot()
@@ -24,20 +25,22 @@ async def start_chat(user_input):
     current_date = datetime.date.today()
     formatted_date = current_date.strftime("%d %B %Y")
 
-    data_dict = get_list_data(user_input)
+    data_dict = get_each_currency_dict_data(user_input)
 
     if data_dict:
         currency_name = data_dict["name"]
         price_coin = data_dict["price"]
         coin_symbol = data_dict["symbol"]
 
-        json_data = get_historical_redis_data("historical_data")
+        historical_json_data = get_historical_redis_data("historical_data")
 
-        if json_data:
-            new_hex_data = get_currency_data(json_data, coin_symbol)
+        if historical_json_data:
+            extracted_currency_data = get_each_currency_data(
+                historical_json_data, coin_symbol
+            )
 
         else:
-            new_hex_data = (
+            extracted_currency_data = (
                 "PLease Enter Correct Currency name without spaces or symbol!!"
             )
 
@@ -45,14 +48,14 @@ async def start_chat(user_input):
         currency_name = ""
         price_coin = ""
         coin_symbol = ""
-        new_hex_data = ""
+        extracted_currency_data = ""
 
-    num_tokens = num_tokens_from_string(str(new_hex_data), "cl100k_base")
+    num_tokens = num_tokens_from_string(str(extracted_currency_data), "cl100k_base")
 
     if num_tokens > 3000:
         text_splitter = TokenTextSplitter(chunk_size=3000, chunk_overlap=0)
-        texts = text_splitter.split_text(str(new_hex_data))
-        new_hex_data = texts[0]
+        texts = text_splitter.split_text(str(extracted_currency_data))
+        extracted_currency_data = texts[0]
 
     future_data = ""
 
@@ -77,7 +80,7 @@ async def start_chat(user_input):
             5) If the user asks some questions that are not related to these documents or you don't find in documents then respond to those question by using your knowledge.\n
             6) Please respond with no salutations and don't refer to the provided documents while answering to user.\n
             Information_hex_pulse documents Starts:\n {docs}.\n Information_hex_pulse documents End\n
-            Historical_currency_price_data of {currency_name} :\n {new_hex_data}. \n Historical_currency_price_data of {currency_name} End.\n
+            Historical_currency_price_data of {currency_name} :\n {extracted_currency_data}. \n Historical_currency_price_data of {currency_name} End.\n
             provided future prices of {currency_name}:\n {future_data}\n
             """,
         },

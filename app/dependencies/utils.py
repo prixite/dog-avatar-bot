@@ -10,7 +10,8 @@ from requests import Session
 from requests.exceptions import ConnectionError, Timeout, TooManyRedirects
 
 from app.dependencies.redis_client import (
-    get_10k_latestlist_data_from_redis,
+    get_10k_currency_latest_from_redis,
+    get_currencylist_redis_data,
     set_redis_data,
 )
 
@@ -40,10 +41,15 @@ def store_10k_currency_latest_in_redis():
 
         try:
             response = session.get(url, params=parameters)
-            json_data = json.loads(response.text)
-
-            all_ten_thousand_data.append(json_data)
-
+            if response.status_code == 200:
+                try:
+                    json_data = json.loads(response.text)
+                    all_ten_thousand_data.append(json_data)
+                    time.sleep(2)
+                except json.decoder.JSONDecodeError:
+                    logging.error("Failed due to parse listing JSON.")
+            else:
+                logging.error("Request Failed for latest 10k listing data")
         except (ConnectionError, Timeout, TooManyRedirects) as e:
             logging.info(e)
 
@@ -54,7 +60,7 @@ def get_currency_ids():
     currency_ids_list = []
     currency_dict_list = []
 
-    cryptocurrencies_10k = get_10k_latestlist_data_from_redis("all_10k_listing_data")
+    cryptocurrencies_10k = get_10k_currency_latest_from_redis("all_10k_listing_data")
 
     temp_100_strings = ""
     count = 0
@@ -112,27 +118,54 @@ def store_historical_in_redis():
 
         try:
             response = session.get(url, params=parameters)
-            data = json.loads(response.text)
+            if response.status_code == 200:
+                try:
+                    data = json.loads(response.text)
+                    all_data.append(data)
+                    time.sleep(2)
+                    count += 1
+                    # logging.info(count)
 
-            # logging.info(count)
-
-            all_data.append(data)
-
-            time.sleep(2)
-
-            count += 1
-
+                except json.decoder.JSONDecodeError:
+                    logging.error("Historical Json load failed")
+            else:
+                logging.error("Request Failed for Historical json data")
         except (ConnectionError, Timeout, TooManyRedirects) as e:
             logging.info(e)
 
     set_redis_data("historical_data", all_data)
 
 
-def get_currency_data(json_data, currency_symbol):
+def get_each_currency_data(json_data, currency_symbol):
     for data in json_data:
         data = data.get("data", {})
         for _, currency_data in data.items():
             if currency_data["symbol"] == currency_symbol:
                 return currency_data
+
+    return None
+
+
+def get_each_currency_dict_data(user_message):
+    list_data_of_currencies = get_currencylist_redis_data("currency_dict_list")
+
+    user_message = user_message.replace("$", "")
+    user_message = user_message.replace("?", "")
+
+    user_message = user_message.lower().split()
+
+    # Add exclusion list
+    exclusion_list = ["of", "may", "the", "was", "what", "is"]
+
+    if list_data_of_currencies:
+        for item in list_data_of_currencies:
+            item_name_tokens = item["name"].lower().replace(" ", "").split()
+            item_symbol_tokens = item["symbol"].lower().split()
+
+            # Checking if any token from the name or symbol is in the user's message
+            for token in item_name_tokens + item_symbol_tokens:
+                # Check if token is in the exclusion list
+                if token not in exclusion_list and token in user_message:
+                    return item
 
     return None
