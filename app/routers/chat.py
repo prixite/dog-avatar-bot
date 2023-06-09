@@ -7,10 +7,12 @@ import openai
 from fastapi import APIRouter
 from langchain.text_splitter import TokenTextSplitter
 
-from app.dependencies.redis_client import (
-    get_historical_redis_data,
+from app.dependencies.redis_client import get_historical_redis_data
+from app.dependencies.utils import (
+    get_each_currency_data,
+    get_each_currency_dict_data,
+    num_tokens_from_string,
 )
-from app.dependencies.utils import get_each_currency_data, num_tokens_from_string, get_each_currency_dict_data
 from app.internal.chatbot import Chatbot
 
 chatbot = Chatbot()
@@ -33,7 +35,9 @@ async def start_chat(user_input):
         historical_json_data = get_historical_redis_data("historical_data")
 
         if historical_json_data:
-            extracted_currency_data = get_each_currency_data(historical_json_data, coin_symbol)
+            extracted_currency_data = get_each_currency_data(
+                historical_json_data, coin_symbol
+            )
 
         else:
             extracted_currency_data = (

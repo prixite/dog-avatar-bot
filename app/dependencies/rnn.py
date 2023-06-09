@@ -9,7 +9,10 @@ from rocketry import Rocketry
 from rocketry.conds import daily
 
 from app.dependencies.redis_client import get_historical_redis_data
-from app.dependencies.utils import get_each_currency_data, store_historical_in_redis,store_10k_currency_latest_in_redis
+from app.dependencies.utils import (
+    get_each_currency_data,
+    store_historical_in_redis,
+)
 
 app = Rocketry(execution="async", config={"task_execution": "async"})
 
@@ -19,8 +22,6 @@ def train_lstm(currency_name):
 
     if historical_json_data:
         historical_data = get_each_currency_data(historical_json_data, currency_name)
-
-
 
     dataa = historical_data["quotes"]
 
@@ -39,7 +40,6 @@ def train_lstm(currency_name):
 
     # convert list to pandas DataFrame
     df = pd.DataFrame(data_list, columns=["price", "volume_24h", "market_cap", "date"])
-
 
     df["date"] = pd.to_datetime(df["date"])
 

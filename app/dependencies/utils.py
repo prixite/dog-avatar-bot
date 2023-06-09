@@ -11,8 +11,8 @@ from requests.exceptions import ConnectionError, Timeout, TooManyRedirects
 
 from app.dependencies.redis_client import (
     get_10k_currency_latest_from_redis,
+    get_currencylist_redis_data,
     set_redis_data,
-    get_currencylist_redis_data
 )
 
 
@@ -24,7 +24,6 @@ def num_tokens_from_string(string: str, encoding_name: str) -> int:
 
 
 def store_10k_currency_latest_in_redis():
-
     url = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest"
 
     rng = [1, 5001, 10001]
@@ -48,15 +47,13 @@ def store_10k_currency_latest_in_redis():
                     all_ten_thousand_data.append(json_data)
                     time.sleep(2)
                 except json.decoder.JSONDecodeError:
-                    logging.error('Failed due to parse listing JSON.')
+                    logging.error("Failed due to parse listing JSON.")
             else:
-                logging.error('Request Failed for latest 10k listing data')
+                logging.error("Request Failed for latest 10k listing data")
         except (ConnectionError, Timeout, TooManyRedirects) as e:
             logging.info(e)
 
-
     set_redis_data("all_10k_listing_data", all_ten_thousand_data)
-
 
 
 def get_currency_ids():
@@ -86,7 +83,6 @@ def get_currency_ids():
 
 
 def store_historical_in_redis():
-
     store_10k_currency_latest_in_redis()
     currency_ids_list = get_currency_ids()
 
@@ -138,6 +134,7 @@ def store_historical_in_redis():
             logging.info(e)
 
     set_redis_data("historical_data", all_data)
+
 
 def get_each_currency_data(json_data, currency_symbol):
     for data in json_data:
