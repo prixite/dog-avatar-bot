@@ -19,10 +19,10 @@ app = Rocketry(execution="async", config={"task_execution": "async"})
 def train_lstm(currency_name):
     historical_json_data = get_historical_redis_data("historical_data")
 
-    if historical_json_data:
-        historical_data = get_each_currency_data(historical_json_data, currency_name)
-    else:
+    if historical_json_data is None:
         return
+    
+    historical_data = get_each_currency_data(historical_json_data, currency_name)
 
     dataa = historical_data["quotes"]
 

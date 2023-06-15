@@ -108,6 +108,8 @@ def store_historical_in_redis():
     store_10k_currency_latest_in_redis()
     currency_ids_list = get_currency_ids()
 
+    if currency_ids_list is None:
+        return
 
     url = "https://pro-api.coinmarketcap.com/v3/cryptocurrency/quotes/historical"
 
@@ -151,7 +153,6 @@ def store_historical_in_redis():
                         all_data.append(data)
                         time.sleep(3)
                         count += 1
-                        logging.info(count)
                         break
                     except json.decoder.JSONDecodeError:
                         logging.error(
