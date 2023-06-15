@@ -6,7 +6,6 @@ from darts import TimeSeries
 from darts.dataprocessing.transformers import Scaler
 from darts.models import RNNModel
 from rocketry import Rocketry
-from rocketry.conds import daily
 
 from app.dependencies.redis_client import get_historical_redis_data
 from app.dependencies.utils import (
@@ -23,7 +22,7 @@ def train_lstm(currency_name):
     if historical_json_data:
         historical_data = get_each_currency_data(historical_json_data, currency_name)
     else:
-        return 
+        return
 
     dataa = historical_data["quotes"]
 

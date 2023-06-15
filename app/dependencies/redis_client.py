@@ -1,10 +1,11 @@
 import json
+import logging
 import os
 from datetime import timedelta
 
 import redis
 from dotenv import load_dotenv
-import logging
+
 # Load environment variables from .env file
 load_dotenv()
 
@@ -51,7 +52,7 @@ def get_historical_redis_data(key):
     if historical_data:
         historical_json_data = json.loads(historical_data)
         return historical_json_data
-    
+
     logging.error("Historical Data not found in Redis")
     return None
 
@@ -62,6 +63,6 @@ def get_currencylist_redis_data(key):
         # Parse the JSON string back into a list
         data = json.loads(currency_data)
         return data
-    
+
     # Handle the case where the key does not exist
     return None
