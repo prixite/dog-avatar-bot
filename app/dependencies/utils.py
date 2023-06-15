@@ -4,6 +4,7 @@ import os
 import time
 from datetime import datetime
 
+import requests
 import tiktoken
 from dateutil.relativedelta import relativedelta
 from requests import Session
@@ -24,34 +25,53 @@ def num_tokens_from_string(string: str, encoding_name: str) -> int:
 
 
 def store_10k_currency_latest_in_redis():
+    max_attempts = 3
     url = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest"
 
     rng = [1, 5001, 10001]
     all_ten_thousand_data = []
+
+    headers = {
+        "Accepts": "application/json",
+        "X-CMC_PRO_API_KEY": os.getenv("COIN_MARKET_CAP_KEY"),
+    }
+
     for i in rng:
         parameters = {"start": i, "limit": 5000, "convert": "USD", "aux": "cmc_rank"}
+        attempt_count = 0
 
-        headers = {
-            "Accepts": "application/json",
-            "X-CMC_PRO_API_KEY": os.getenv("COIN_MARKET_CAP_KEY"),
-        }
+        while attempt_count < max_attempts:
+            try:
+                response = requests.get(url, params=parameters, headers=headers)
 
-        session = Session()
-        session.headers.update(headers)
+                if response.status_code == 200:
+                    try:
+                        json_data = json.loads(response.text)
+                        logging.info(
+                            f"Request of value {i} for latest listing data successfull"
+                        )
+                        all_ten_thousand_data.append(json_data)
+                        time.sleep(5)
+                        break
+                    except json.decoder.JSONDecodeError:
+                        logging.error(
+                            f"Failed due to parse latest listing api data JSON: {response}"
+                        )
+                        attempt_count += 1
+                else:
+                    logging.error(
+                        f"Request Failed for latest 10k listing data. Status code: {response}"
+                    )
+                    attempt_count += 1
+            except (ConnectionError, Timeout, TooManyRedirects) as e:
+                logging.info(e)
+                attempt_count += 1
+                time.sleep(
+                    3
+                )  # Optional: Wait for 2 seconds before next retry to reduce the load on the server
 
-        try:
-            response = session.get(url, params=parameters)
-            if response.status_code == 200:
-                try:
-                    json_data = json.loads(response.text)
-                    all_ten_thousand_data.append(json_data)
-                    time.sleep(2)
-                except json.decoder.JSONDecodeError:
-                    logging.error("Failed due to parse listing JSON.")
-            else:
-                logging.error("Request Failed for latest 10k listing data")
-        except (ConnectionError, Timeout, TooManyRedirects) as e:
-            logging.info(e)
+        if attempt_count == max_attempts:
+            logging.error("Max attempts reached for latest crypto listing api.")
 
     set_redis_data("all_10k_listing_data", all_ten_thousand_data)
 
@@ -78,13 +98,18 @@ def get_currency_ids():
         currency_dict_list.append(cryptocurrencies_10k[i])
 
     set_redis_data("currency_dict_list", currency_dict_list)
+    if currency_ids_list:
+        return currency_ids_list
 
-    return currency_ids_list
+    return None
 
 
 def store_historical_in_redis():
     store_10k_currency_latest_in_redis()
     currency_ids_list = get_currency_ids()
+
+    if currency_ids_list is None:
+        return
 
     url = "https://pro-api.coinmarketcap.com/v3/cryptocurrency/quotes/historical"
 
@@ -94,8 +119,15 @@ def store_historical_in_redis():
     # Get the date and time one month ago
     time_start = time_end - relativedelta(months=1)
 
+    headers = {
+        "Accepts": "application/json",
+        "X-CMC_PRO_API_KEY": os.getenv("COIN_MARKET_CAP_KEY"),
+    }
+
     all_data = []
+    max_attempts = 3
     count = 0
+
     for symbols in currency_ids_list:
         parameters = {
             "id": symbols,
@@ -108,30 +140,39 @@ def store_historical_in_redis():
             "convert": "USD",
         }
 
-        headers = {
-            "Accepts": "application/json",
-            "X-CMC_PRO_API_KEY": os.getenv("COIN_MARKET_CAP_KEY"),
-        }
-
         session = Session()
         session.headers.update(headers)
+        attempt_count = 0
 
-        try:
-            response = session.get(url, params=parameters)
-            if response.status_code == 200:
-                try:
-                    data = json.loads(response.text)
-                    all_data.append(data)
-                    time.sleep(2)
-                    count += 1
-                    # logging.info(count)
+        while attempt_count < max_attempts:
+            try:
+                response = session.get(url, params=parameters)
+                if response.status_code == 200:
+                    try:
+                        data = json.loads(response.text)
+                        all_data.append(data)
+                        time.sleep(3)
+                        count += 1
+                        break
+                    except json.decoder.JSONDecodeError:
+                        logging.error(
+                            f"Historical Json load failed with response: {response}"
+                        )
+                        attempt_count += 1
+                else:
+                    logging.error(
+                        f"Request Failed for Historical json data with response: {response}"
+                    )
+                    attempt_count += 1
+            except (ConnectionError, Timeout, TooManyRedirects) as e:
+                logging.info(e)
+                attempt_count += 1
+                time.sleep(
+                    3
+                )  # Optional: Wait for 2 seconds before next retry to reduce the load on the server
 
-                except json.decoder.JSONDecodeError:
-                    logging.error("Historical Json load failed")
-            else:
-                logging.error("Request Failed for Historical json data")
-        except (ConnectionError, Timeout, TooManyRedirects) as e:
-            logging.info(e)
+        if attempt_count == max_attempts:
+            logging.error("Max attempts reached for historical crypto data api.")
 
     set_redis_data("historical_data", all_data)
 

@@ -6,7 +6,6 @@ from darts import TimeSeries
 from darts.dataprocessing.transformers import Scaler
 from darts.models import RNNModel
 from rocketry import Rocketry
-from rocketry.conds import daily
 
 from app.dependencies.redis_client import get_historical_redis_data
 from app.dependencies.utils import (
@@ -20,8 +19,10 @@ app = Rocketry(execution="async", config={"task_execution": "async"})
 def train_lstm(currency_name):
     historical_json_data = get_historical_redis_data("historical_data")
 
-    if historical_json_data:
-        historical_data = get_each_currency_data(historical_json_data, currency_name)
+    if historical_json_data is None:
+        return
+    
+    historical_data = get_each_currency_data(historical_json_data, currency_name)
 
     dataa = historical_data["quotes"]
 
@@ -95,7 +96,8 @@ def train_lstm(currency_name):
         pickle.dump(df_reset, f)
 
 
-@app.task(daily)
+# daily after 07:00
+@app.task("daily after 07:00")
 def run_train():
     logging.info("Cron Function Started")
     list_of_currencies = ["HEX", "BTC"]
