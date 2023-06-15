@@ -4,7 +4,7 @@ from datetime import timedelta
 
 import redis
 from dotenv import load_dotenv
-
+import logging
 # Load environment variables from .env file
 load_dotenv()
 
@@ -15,7 +15,7 @@ redis_client = redis.Redis(
 
 def set_redis_data(key, data):
     redis_client.set(key, json.dumps(data))
-    redis_client.expire(key, timedelta(days=1))
+    redis_client.expire(key, timedelta(days=3))
 
 
 def get_10k_currency_latest_from_redis(key):
@@ -42,17 +42,17 @@ def get_10k_currency_latest_from_redis(key):
                 )
 
         return cryptocurrencies
-
+    logging.error("latest listing data not found in redis")
     return None
 
 
 def get_historical_redis_data(key):
     historical_data = redis_client.get(key)
-    if historical_data is not None:
+    if historical_data:
         historical_json_data = json.loads(historical_data)
-
         return historical_json_data
-
+    
+    logging.error("Historical Data not found in Redis")
     return None
 
 
@@ -62,6 +62,6 @@ def get_currencylist_redis_data(key):
         # Parse the JSON string back into a list
         data = json.loads(currency_data)
         return data
-
-        # Handle the case where the key does not exist
+    
+    # Handle the case where the key does not exist
     return None

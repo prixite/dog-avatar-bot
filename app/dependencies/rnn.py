@@ -22,6 +22,8 @@ def train_lstm(currency_name):
 
     if historical_json_data:
         historical_data = get_each_currency_data(historical_json_data, currency_name)
+    else:
+        return 
 
     dataa = historical_data["quotes"]
 
@@ -95,7 +97,8 @@ def train_lstm(currency_name):
         pickle.dump(df_reset, f)
 
 
-@app.task(daily)
+# daily after 07:00
+@app.task("daily after 07:00")
 def run_train():
     logging.info("Cron Function Started")
     list_of_currencies = ["HEX", "BTC"]
