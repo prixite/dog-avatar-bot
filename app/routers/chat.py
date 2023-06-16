@@ -99,7 +99,7 @@ async def start_chat(user_input):
 
     for attempt in range(retry_attempts):
         try:
-            response = openai.ChatCompletion.create(
+            response =await openai.ChatCompletion.acreate(
                 model="gpt-3.5-turbo", messages=messages, temperature=0
             )
             # if request is successful, break out of loop
