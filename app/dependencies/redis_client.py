@@ -14,12 +14,12 @@ redis_client = redis.Redis(
 )
 
 
-def set_redis_data(key, data):
+async def set_redis_data(key, data):
     redis_client.set(key, json.dumps(data))
     redis_client.expire(key, timedelta(days=3))
 
 
-def get_10k_currency_latest_from_redis(key):
+async def get_10k_currency_latest_from_redis(key):
     latest_list_data = redis_client.get(key)
     if latest_list_data:
         latest_list_json_data = json.loads(latest_list_data)
@@ -47,7 +47,7 @@ def get_10k_currency_latest_from_redis(key):
     return None
 
 
-def get_historical_redis_data(key):
+async def get_historical_redis_data(key):
     historical_data = redis_client.get(key)
     if historical_data:
         historical_json_data = json.loads(historical_data)
@@ -57,7 +57,7 @@ def get_historical_redis_data(key):
     return None
 
 
-def get_currencylist_redis_data(key):
+async def get_currencylist_redis_data(key):
     currency_data = redis_client.get(key)
     if currency_data:
         # Parse the JSON string back into a list
