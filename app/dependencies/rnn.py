@@ -16,13 +16,16 @@ from app.dependencies.utils import (
 app = Rocketry(execution="async", config={"task_execution": "async"})
 
 
-def train_lstm(currency_name):
-    historical_json_data = get_historical_redis_data("historical_data")
+async def train_lstm(currency_name):
+    historical_json_data = await get_historical_redis_data("historical_data")
 
     if historical_json_data is None:
         return
     
-    historical_data = get_each_currency_data(historical_json_data, currency_name)
+    historical_data = await get_each_currency_data(historical_json_data, currency_name)
+
+    if historical_data is None:  # Checking if the result is None
+        return
 
     dataa = historical_data["quotes"]
 
@@ -98,11 +101,11 @@ def train_lstm(currency_name):
 
 # daily after 07:00
 @app.task("daily after 07:00")
-def run_train():
+async def run_train():
     logging.info("Cron Function Started")
     list_of_currencies = ["HEX", "BTC"]
 
-    store_historical_in_redis()
+    await store_historical_in_redis()
 
     for currency_name in list_of_currencies:
-        train_lstm(currency_name)
+        await train_lstm(currency_name)

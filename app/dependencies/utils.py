@@ -17,14 +17,14 @@ from app.dependencies.redis_client import (
 )
 
 
-def num_tokens_from_string(string: str, encoding_name: str) -> int:
+async def num_tokens_from_string(string: str, encoding_name: str) -> int:
     """Returns the number of tokens in a text string."""
     encoding = tiktoken.get_encoding(encoding_name)
     num_tokens = len(encoding.encode(string))
     return num_tokens
 
 
-def store_10k_currency_latest_in_redis():
+async def store_10k_currency_latest_in_redis():
     max_attempts = 3
     url = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest"
 
@@ -72,15 +72,16 @@ def store_10k_currency_latest_in_redis():
 
         if attempt_count == max_attempts:
             logging.error("Max attempts reached for latest crypto listing api.")
+        
 
-    set_redis_data("all_10k_listing_data", all_ten_thousand_data)
+    await set_redis_data("all_10k_listing_data", all_ten_thousand_data)
 
 
-def get_currency_ids():
+async def get_currency_ids():
     currency_ids_list = []
     currency_dict_list = []
 
-    cryptocurrencies_10k = get_10k_currency_latest_from_redis("all_10k_listing_data")
+    cryptocurrencies_10k = await get_10k_currency_latest_from_redis("all_10k_listing_data")
 
     temp_100_strings = ""
     count = 0
@@ -97,16 +98,16 @@ def get_currency_ids():
 
         currency_dict_list.append(cryptocurrencies_10k[i])
 
-    set_redis_data("currency_dict_list", currency_dict_list)
+    await set_redis_data("currency_dict_list", currency_dict_list)
     if currency_ids_list:
         return currency_ids_list
 
     return None
 
 
-def store_historical_in_redis():
-    store_10k_currency_latest_in_redis()
-    currency_ids_list = get_currency_ids()
+async def store_historical_in_redis():
+    await store_10k_currency_latest_in_redis()
+    currency_ids_list = await get_currency_ids()
 
     if currency_ids_list is None:
         return
@@ -152,6 +153,7 @@ def store_historical_in_redis():
                         data = json.loads(response.text)
                         all_data.append(data)
                         time.sleep(3)
+                        # logging.info(count)
                         count += 1
                         break
                     except json.decoder.JSONDecodeError:
@@ -173,11 +175,12 @@ def store_historical_in_redis():
 
         if attempt_count == max_attempts:
             logging.error("Max attempts reached for historical crypto data api.")
+        
 
-    set_redis_data("historical_data", all_data)
+    await set_redis_data("historical_data", all_data)
 
 
-def get_each_currency_data(json_data, currency_symbol):
+async def get_each_currency_data(json_data, currency_symbol):
     for data in json_data:
         data = data.get("data", {})
         for _, currency_data in data.items():
@@ -187,8 +190,8 @@ def get_each_currency_data(json_data, currency_symbol):
     return None
 
 
-def get_each_currency_dict_data(user_message):
-    list_data_of_currencies = get_currencylist_redis_data("currency_dict_list")
+async def get_each_currency_dict_data(user_message):
+    list_data_of_currencies = await get_currencylist_redis_data("currency_dict_list")
 
     user_message = user_message.replace("$", "")
     user_message = user_message.replace("?", "")

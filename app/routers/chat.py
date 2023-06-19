@@ -25,17 +25,17 @@ async def start_chat(user_input):
     current_date = datetime.date.today()
     formatted_date = current_date.strftime("%d %B %Y")
 
-    data_dict = get_each_currency_dict_data(user_input)
+    data_dict = await get_each_currency_dict_data(user_input)
 
     if data_dict:
         currency_name = data_dict["name"]
         price_coin = data_dict["price"]
         coin_symbol = data_dict["symbol"]
 
-        historical_json_data = get_historical_redis_data("historical_data")
+        historical_json_data = await get_historical_redis_data("historical_data")
 
         if historical_json_data:
-            extracted_currency_data = get_each_currency_data(
+            extracted_currency_data = await get_each_currency_data(
                 historical_json_data, coin_symbol
             )
 
@@ -50,7 +50,7 @@ async def start_chat(user_input):
         coin_symbol = ""
         extracted_currency_data = ""
 
-    num_tokens = num_tokens_from_string(str(extracted_currency_data), "cl100k_base")
+    num_tokens = await num_tokens_from_string(str(extracted_currency_data), "cl100k_base")
 
     if num_tokens > 3000:
         text_splitter = TokenTextSplitter(chunk_size=3000, chunk_overlap=0)
@@ -85,7 +85,7 @@ async def start_chat(user_input):
             """,
         },
     ]
-    num_tokens_message = num_tokens_from_string(messages[0]["content"], "cl100k_base")
+    num_tokens_message = await num_tokens_from_string(messages[0]["content"], "cl100k_base")
 
     if num_tokens_message > 4040:
         text_splitter = TokenTextSplitter(chunk_size=4040, chunk_overlap=0)
