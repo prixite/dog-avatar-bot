@@ -21,7 +21,7 @@ async def train_lstm(currency_name):
 
     if historical_json_data is None:
         return
-    
+
     historical_data = await get_each_currency_data(historical_json_data, currency_name)
 
     if historical_data is None:  # Checking if the result is None

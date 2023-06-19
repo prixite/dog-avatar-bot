@@ -72,7 +72,6 @@ async def store_10k_currency_latest_in_redis():
 
         if attempt_count == max_attempts:
             logging.error("Max attempts reached for latest crypto listing api.")
-        
 
     await set_redis_data("all_10k_listing_data", all_ten_thousand_data)
 
@@ -81,7 +80,9 @@ async def get_currency_ids():
     currency_ids_list = []
     currency_dict_list = []
 
-    cryptocurrencies_10k = await get_10k_currency_latest_from_redis("all_10k_listing_data")
+    cryptocurrencies_10k = await get_10k_currency_latest_from_redis(
+        "all_10k_listing_data"
+    )
 
     temp_100_strings = ""
     count = 0
@@ -175,7 +176,6 @@ async def store_historical_in_redis():
 
         if attempt_count == max_attempts:
             logging.error("Max attempts reached for historical crypto data api.")
-        
 
     await set_redis_data("historical_data", all_data)
 

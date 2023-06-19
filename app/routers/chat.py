@@ -50,7 +50,9 @@ async def start_chat(user_input):
         coin_symbol = ""
         extracted_currency_data = ""
 
-    num_tokens = await num_tokens_from_string(str(extracted_currency_data), "cl100k_base")
+    num_tokens = await num_tokens_from_string(
+        str(extracted_currency_data), "cl100k_base"
+    )
 
     if num_tokens > 3000:
         text_splitter = TokenTextSplitter(chunk_size=3000, chunk_overlap=0)
@@ -85,7 +87,9 @@ async def start_chat(user_input):
             """,
         },
     ]
-    num_tokens_message = await num_tokens_from_string(messages[0]["content"], "cl100k_base")
+    num_tokens_message = await num_tokens_from_string(
+        messages[0]["content"], "cl100k_base"
+    )
 
     if num_tokens_message > 4040:
         text_splitter = TokenTextSplitter(chunk_size=4040, chunk_overlap=0)
@@ -99,7 +103,7 @@ async def start_chat(user_input):
 
     for attempt in range(retry_attempts):
         try:
-            response =await openai.ChatCompletion.acreate(
+            response = await openai.ChatCompletion.acreate(
                 model="gpt-3.5-turbo", messages=messages, temperature=0
             )
             # if request is successful, break out of loop
