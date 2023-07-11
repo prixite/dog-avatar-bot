@@ -76,34 +76,6 @@ def store_10k_currency_latest_in_redis():
     set_redis_data("all_10k_listing_data", all_ten_thousand_data)
 
 
-def get_currency_ids():
-    currency_ids_list = []
-    currency_dict_list = []
-
-    cryptocurrencies_10k = get_10k_currency_latest_from_redis("all_10k_listing_data")
-
-    temp_100_strings = ""
-    count = 0
-    for i in range(0, len(cryptocurrencies_10k)):
-        if count == 99:
-            temp_100_strings += cryptocurrencies_10k[i]["id"]
-            currency_ids_list.append(temp_100_strings)
-            count = 0
-            temp_100_strings = ""
-        else:
-            temp_100_strings += cryptocurrencies_10k[i]["id"] + ","
-
-        count += 1
-
-        currency_dict_list.append(cryptocurrencies_10k[i])
-
-    set_redis_data("currency_dict_list", currency_dict_list)
-    if currency_ids_list:
-        return currency_ids_list
-
-    return None
-
-
 def store_historical_in_redis():
     store_10k_currency_latest_in_redis()
     currency_ids_list = get_currency_ids()
@@ -129,6 +101,7 @@ def store_historical_in_redis():
     count = 0
 
     for symbols in currency_ids_list:
+        # logging.info(count)
         parameters = {
             "id": symbols,
             "time_start": time_start.strftime(
@@ -164,6 +137,7 @@ def store_historical_in_redis():
                         f"Request Failed for Historical json data with response: {response}"
                     )
                     attempt_count += 1
+
             except (ConnectionError, Timeout, TooManyRedirects) as e:
                 logging.info(e)
                 attempt_count += 1
@@ -175,6 +149,34 @@ def store_historical_in_redis():
             logging.error("Max attempts reached for historical crypto data api.")
 
     set_redis_data("historical_data", all_data)
+
+
+def get_currency_ids():
+    currency_ids_list = []
+    currency_dict_list = []
+
+    cryptocurrencies_10k = get_10k_currency_latest_from_redis("all_10k_listing_data")
+
+    temp_100_strings = ""
+    count = 0
+    for i in range(0, len(cryptocurrencies_10k)):
+        if count == 99:
+            temp_100_strings += cryptocurrencies_10k[i]["id"]
+            currency_ids_list.append(temp_100_strings)
+            count = 0
+            temp_100_strings = ""
+        else:
+            temp_100_strings += cryptocurrencies_10k[i]["id"] + ","
+
+        count += 1
+
+        currency_dict_list.append(cryptocurrencies_10k[i])
+
+    set_redis_data("currency_dict_list", currency_dict_list)
+    if currency_ids_list:
+        return currency_ids_list
+
+    return None
 
 
 def get_each_currency_data(json_data, currency_symbol):
@@ -198,6 +200,8 @@ def get_each_currency_dict_data(user_message):
     # Add exclusion list
     exclusion_list = ["of", "may", "the", "was", "what", "is"]
 
+    matching_currencies = []
+
     if list_data_of_currencies:
         for item in list_data_of_currencies:
             item_name_tokens = item["name"].lower().replace(" ", "").split()
@@ -207,6 +211,7 @@ def get_each_currency_dict_data(user_message):
             for token in item_name_tokens + item_symbol_tokens:
                 # Check if token is in the exclusion list
                 if token not in exclusion_list and token in user_message:
-                    return item
+                    matching_currencies.append(item)
+                    break  # break the inner loop once we found a match in this item
 
-    return None
+    return matching_currencies

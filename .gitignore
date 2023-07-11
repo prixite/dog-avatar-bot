@@ -3,6 +3,9 @@ venv
 .env
 demo
 .vscode
-app/dependencies/BTC.pkl
-app/dependencies/HEX.pkl
+app/dependencies/picklefiles/BTC.pkl
+app/dependencies/picklefiles/HEX.pkl
 test
+app/dependencies/picklefiles/PLS.pkl
+app/dependencies/picklefiles/PLSX.pkl
+app/dependencies/picklefiles/RICHAI.pkl
