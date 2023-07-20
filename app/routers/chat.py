@@ -16,6 +16,7 @@ from app.dependencies.redis_client import get_historical_redis_data
 from app.dependencies.utils import (
     get_each_currency_data,
     get_each_currency_dict_data,
+    get_each_currency_dict_data_single,
     num_tokens_from_string,
 )
 from app.internal.chatbot import Chatbot
@@ -29,27 +30,24 @@ router = APIRouter()
 async def start_chat(user_input):
     current_date = datetime.date.today()
     formatted_date = current_date.strftime("%d %B %Y")
-    # data_dict = get_each_currency_dict_data(user_input)
-    data_list = get_each_currency_dict_data(user_input)
 
-    if data_list:
-        for data_dict in data_list:
-            currency_name = data_dict["name"]
-            price_coin = data_dict["price"]
-            coin_symbol = data_dict["symbol"]
+    data_dict = get_each_currency_dict_data_single(user_input)
 
-            historical_json_data = get_historical_redis_data("historical_data")
+    if data_dict:
+        currency_name = data_dict["name"]
+        price_coin = data_dict["price"]
+        coin_symbol = data_dict["symbol"]
 
-            if historical_json_data:
-                extracted_currency_data = get_each_currency_data(
-                    historical_json_data, coin_symbol
-                )
+        historical_json_data = get_historical_redis_data("historical_data")
 
-            else:
-                extracted_currency_data = (
-                    "PLease Enter Correct Currency name without spaces or symbol!!"
-                )
-            break
+        if historical_json_data:
+            extracted_currency_data = get_each_currency_data(
+                historical_json_data, coin_symbol
+            )
+        else:
+            extracted_currency_data = (
+                "PLease Enter Correct Currency name without spaces or symbol!!"
+            )
 
     else:
         currency_name = ""
@@ -76,7 +74,7 @@ async def start_chat(user_input):
     docs = chatbot.faiss_index.similarity_search(user_input, k=2)
 
     # flake8: noqa
-
+    data_list = get_each_currency_dict_data(user_input)
     currency_name2 = ""
     currency_name3 = ""
     price_coin2 = ""
@@ -149,6 +147,8 @@ async def start_chat(user_input):
                 Historical_currency_price_data of {currency_name} :\n {extracted_currency_data}. \n Historical_currency_price_data of {currency_name} End.\n
                 provided future prices of {currency_name}:\n {future_data}\n
                 6) The current / today's price or price of currency_name: {currency_name} / currency_symbol: {coin_symbol} on {formatted_date} is {price_coin}. If the user asks about a currency price like "what is xrp price or price of bitcoin", tell the price from the current price of that currency.\n
+                7) If you have the price of hex and user asks about the price of hex then round the price of hex to 5 decimal places.
+                8) If you have the price of pulsechain (PLS) and user asks about the price of PLS then round the price of PLS to 7 decimal places.
                 """,
             },
         ]

@@ -110,5 +110,8 @@ def run_train():
 
     store_historical_in_redis()
 
-    for currency_name in list_of_currencies:
-        train_lstm(currency_name)
+    try:
+        for currency_name in list_of_currencies:
+            train_lstm(currency_name)
+    except TypeError:
+        logging.info("RNN FAILED")

@@ -22,6 +22,8 @@ def three_tokens_prompt(
                 Historical_currency_price_data of {currency_name} :\n {extracted_currency_data}. \n Historical_currency_price_data of {currency_name} End.\n
                 6) The currency symbol {coin_symbol} have more than one currencies which are {currency_name}, {currency_name2} and {currency_name3} and their current prices are: {price_coin},{price_coin2} and {price_coin3} respectively.
                 7) If the user has asked the price or current price of {coin_symbol} then return the same prices in point number 6. You can respond with the same point 6 and tell the price of all these coins. Always remember to return prices of all three coins not of just one.
+                8) If you have the price of hex and user asks about the price of hex then round the price of hex to 5 decimal places.
+                9) If you have the price of pulsechain PLS and user asks about the price of PLS then round the price of PLS to 7 decimal places even when telling about the historical price of pls.
                 """,
         },
     ]
@@ -50,6 +52,9 @@ def two_tokens_prompt(
                 Historical_currency_price_data of {currency_name} :\n {extracted_currency_data}. \n Historical_currency_price_data of {currency_name} End.\n
                 6) The currency symbol {coin_symbol} have more than one currencies which are {currency_name} and {currency_name2} and their current prices are: {price_coin} and {price_coin2} respectively.
                 7) If the user has asked the price or current price of {coin_symbol} then return the same prices in point number 6. You can respond with the same point 6 and tell the price of all these coins. Always remember to return prices of all two coins not of just one.
+                8) If you have the price of hex and user asks about the price of hex then round the price of hex to 5 decimal places.
+                9) If you have the price of pulsechain PLS and user asks about the price of PLS then round the price of PLS to 7 decimal places.
+
                 """,
         },
     ]

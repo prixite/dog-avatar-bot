@@ -86,10 +86,13 @@ def store_historical_in_redis():
     url = "https://pro-api.coinmarketcap.com/v3/cryptocurrency/quotes/historical"
 
     # Get the current date and time
-    time_end = datetime.now()
+    now = datetime.now()
 
     # Get the date and time one month ago
-    time_start = time_end - relativedelta(months=1)
+    time_start = (now - relativedelta(months=1)).replace(
+        hour=0, minute=0, second=0, microsecond=0
+    )
+    time_end = now.replace(hour=0, minute=0, second=0, microsecond=0)
 
     headers = {
         "Accepts": "application/json",
@@ -215,3 +218,28 @@ def get_each_currency_dict_data(user_message):
                     break  # break the inner loop once we found a match in this item
 
     return matching_currencies
+
+
+def get_each_currency_dict_data_single(user_message):
+    list_data_of_currencies = get_currencylist_redis_data("currency_dict_list")
+
+    user_message = user_message.replace("$", "")
+    user_message = user_message.replace("?", "")
+
+    user_message = user_message.lower().split()
+
+    # Add exclusion list
+    exclusion_list = ["of", "may", "the", "was", "what", "is"]
+
+    if list_data_of_currencies:
+        for item in list_data_of_currencies:
+            item_name_tokens = item["name"].lower().replace(" ", "").split()
+            item_symbol_tokens = item["symbol"].lower().split()
+
+            # Checking if any token from the name or symbol is in the user's message
+            for token in item_name_tokens + item_symbol_tokens:
+                # Check if token is in the exclusion list
+                if token not in exclusion_list and token in user_message:
+                    return item
+
+    return None
