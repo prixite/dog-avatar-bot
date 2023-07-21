@@ -146,7 +146,7 @@ def store_historical_in_redis():
                 attempt_count += 1
                 time.sleep(
                     3
-                )  # Optional: Wait for 2 seconds before next retry to reduce the load on the server
+                )  # Optional: Wait for 3 seconds before next retry to reduce the load on the server
 
         if attempt_count == max_attempts:
             logging.error("Max attempts reached for historical crypto data api.")
@@ -195,10 +195,7 @@ def get_each_currency_data(json_data, currency_symbol):
 def get_each_currency_dict_data(user_message):
     list_data_of_currencies = get_currencylist_redis_data("currency_dict_list")
 
-    user_message = user_message.replace("$", "")
-    user_message = user_message.replace("?", "")
-
-    user_message = user_message.lower().split()
+    user_message = user_message.replace("$", "").replace("?", "").lower().split()
 
     # Add exclusion list
     exclusion_list = ["of", "may", "the", "was", "what", "is"]
@@ -223,10 +220,7 @@ def get_each_currency_dict_data(user_message):
 def get_each_currency_dict_data_single(user_message):
     list_data_of_currencies = get_currencylist_redis_data("currency_dict_list")
 
-    user_message = user_message.replace("$", "")
-    user_message = user_message.replace("?", "")
-
-    user_message = user_message.lower().split()
+    user_message = user_message.replace("$", "").replace("?", "").lower().split()
 
     # Add exclusion list
     exclusion_list = ["of", "may", "the", "was", "what", "is"]

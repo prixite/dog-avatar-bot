@@ -26,7 +26,7 @@ def train_lstm(currency_name):
 
     try:
         dataa = historical_data["quotes"]
-    except None:
+    except Exception:
         return
 
     # create a list to hold our data

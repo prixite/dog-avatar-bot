@@ -50,10 +50,7 @@ async def start_chat(user_input):
             )
 
     else:
-        currency_name = ""
-        price_coin = ""
-        coin_symbol = ""
-        extracted_currency_data = ""
+        currency_name, price_coin, coin_symbol, extracted_currency_data = ""
 
     num_tokens = num_tokens_from_string(str(extracted_currency_data), "cl100k_base")
 
@@ -75,12 +72,14 @@ async def start_chat(user_input):
 
     # flake8: noqa
     data_list = get_each_currency_dict_data(user_input)
-    currency_name2 = ""
-    currency_name3 = ""
-    price_coin2 = ""
-    price_coin3 = ""
-    currency_name4 = ""
-    price_coin4 = ""
+    (
+        currency_name2,
+        currency_name3,
+        price_coin2,
+        price_coin3,
+        currency_name4,
+        price_coin4,
+    ) = ("", "", "", "", "", "")
     if len(data_list) > 1:
         for i in range(0, len(data_list)):
             if i == 1:
@@ -94,19 +93,15 @@ async def start_chat(user_input):
                 currency_name4 = data_list[i]["name"]
                 price_coin4 = data_list[i]["price"]
 
-    if len(data_list) == 4:
-        messages = four_tokens_prompt(
+    if len(data_list) == 2:
+        messages = two_tokens_prompt(
             docs,
             extracted_currency_data,
-            coin_symbol,
             currency_name,
             currency_name2,
-            currency_name3,
-            currency_name4,
+            coin_symbol,
             price_coin,
             price_coin2,
-            price_coin3,
-            price_coin4,
         )
 
     elif len(data_list) == 3:
@@ -122,15 +117,19 @@ async def start_chat(user_input):
             price_coin3,
         )
 
-    elif len(data_list) == 2:
-        messages = two_tokens_prompt(
+    elif len(data_list) == 4:
+        messages = four_tokens_prompt(
             docs,
             extracted_currency_data,
+            coin_symbol,
             currency_name,
             currency_name2,
-            coin_symbol,
+            currency_name3,
+            currency_name4,
             price_coin,
             price_coin2,
+            price_coin3,
+            price_coin4,
         )
 
     else:
