@@ -21,10 +21,13 @@ def train_lstm(currency_name):
 
     if historical_json_data is None:
         return
-    
+
     historical_data = get_each_currency_data(historical_json_data, currency_name)
 
-    dataa = historical_data["quotes"]
+    try:
+        dataa = historical_data["quotes"]
+    except Exception:
+        return
 
     # create a list to hold our data
     data_list = []
@@ -92,17 +95,23 @@ def train_lstm(currency_name):
     df_reset = df_reset.reset_index(drop=True)
 
     # Save the DataFrame to a pickle file
-    with open(f"app/dependencies/{currency_name}.pkl", "wb") as f:
-        pickle.dump(df_reset, f)
+    try:
+        with open(f"app/dependencies/picklefiles/{currency_name}.pkl", "wb") as f:
+            pickle.dump(df_reset, f)
+    except PermissionError:
+        pass
 
 
 # daily after 07:00
 @app.task("daily after 07:00")
 def run_train():
     logging.info("Cron Function Started")
-    list_of_currencies = ["HEX", "BTC"]
+    list_of_currencies = ["HEX", "BTC", "RICHAI", "PLSX", "PLS"]
 
     store_historical_in_redis()
 
-    for currency_name in list_of_currencies:
-        train_lstm(currency_name)
+    try:
+        for currency_name in list_of_currencies:
+            train_lstm(currency_name)
+    except TypeError:
+        logging.info("RNN FAILED")
