@@ -50,7 +50,7 @@ async def start_chat(user_input):
             )
 
     else:
-        currency_name, price_coin, coin_symbol, extracted_currency_data = ""
+        currency_name, price_coin, coin_symbol, extracted_currency_data = "", "", "", ""
 
     num_tokens = num_tokens_from_string(str(extracted_currency_data), "cl100k_base")
 
@@ -146,8 +146,7 @@ async def start_chat(user_input):
                 Historical_currency_price_data of {currency_name} :\n {extracted_currency_data}. \n Historical_currency_price_data of {currency_name} End.\n
                 provided future prices of {currency_name}:\n {future_data}\n
                 6) The current / today's price or price of currency_name: {currency_name} / currency_symbol: {coin_symbol} on {formatted_date} is {price_coin}. If the user asks about a currency price like "what is xrp price or price of bitcoin", tell the price from the current price of that currency.\n
-                7) If you have the price of hex and user asks about the price of hex then round the price of hex to 5 decimal places.
-                8) If you have the price of pulsechain (PLS) and user asks about the price of PLS then round the price of PLS to 7 decimal places.
+                7) Always round the prices of crypto currencies to the five decimal places before telling the user price or historical price except the PLS price round its value to the seven decimal places even for historical prices.
                 """,
             },
         ]
