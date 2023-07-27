@@ -1,4 +1,5 @@
 import logging
+import os
 import pickle
 
 import pandas as pd
@@ -17,6 +18,8 @@ app = Rocketry(execution="async", config={"task_execution": "async"})
 
 
 def train_lstm(currency_name):
+    pickle_files_dir = "app/dependencies/picklefiles"
+
     historical_json_data = get_historical_redis_data("historical_data")
 
     if historical_json_data is None:
@@ -94,9 +97,13 @@ def train_lstm(currency_name):
     df_reset.columns.name = None
     df_reset = df_reset.reset_index(drop=True)
 
-    # Save the DataFrame to a pickle file
+    # Check if directory exists
+    if not os.path.exists(pickle_files_dir):
+        # If not, create directory
+        os.makedirs(pickle_files_dir)
+
     try:
-        with open(f"app/dependencies/picklefiles/{currency_name}.pkl", "wb") as f:
+        with open(f"{pickle_files_dir}/{currency_name}.pkl", "wb") as f:
             pickle.dump(df_reset, f)
     except PermissionError:
         pass
